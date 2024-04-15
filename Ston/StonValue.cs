@@ -156,39 +156,45 @@ namespace Ston
             return _stringValue;
         }
 
-        public override string ToString()
+        public object GetValue()
         {
             switch (_type)
             {
                 case Type.Boolean:
-                    return AsBool().ToString();
+                    return AsBool();
                 case Type.Byte:
-                    return AsByte().ToString();
+                    return AsByte();
                 case Type.SByte:
-                    return AsSByte().ToString();
+                    return AsSByte();
                 case Type.Int16:
-                    return AsInt16().ToString();
+                    return AsInt16();
                 case Type.Int32:
-                    return AsInt32().ToString();
+                    return AsInt32();
                 case Type.Int64:
-                    return AsInt64().ToString();
+                    return AsInt64();
                 case Type.UInt16:
-                    return AsUInt16().ToString();
+                    return AsUInt16();
                 case Type.UInt32:
-                    return AsUInt32().ToString();
+                    return AsUInt32();
                 case Type.UInt64:
-                    return AsUInt64().ToString();
+                    return AsUInt64();
                 case Type.Single:
-                    return AsSingle().ToString();
+                    return AsSingle();
                 case Type.Double:
-                    return AsDouble().ToString();
+                    return AsDouble();
                 case Type.Decimal:
-                    return AsDecimal().ToString();
+                    return AsDecimal();
                 case Type.String:
-                    return AsString().ToString();
+                    return AsString();
                 default:
                     throw new Exception($"unsupported type {_type}");
             }
+        }
+
+        public override string ToString()
+        {
+            var value = GetValue();
+            return value.ToString();
         }
 
         public enum Type

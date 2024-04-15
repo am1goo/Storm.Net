@@ -141,7 +141,6 @@ namespace Ston
                         break;
                 }
                 obj.Add(key, stonValue);
-                Console.WriteLine($"key={key}, type={stonType}, value={stonValue}");
             }
             return obj;
         }
