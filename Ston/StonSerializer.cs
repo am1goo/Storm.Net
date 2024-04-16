@@ -42,16 +42,27 @@ namespace Ston
 
             var obj = new StonObject();
             var lines = ston.Split(Environment.NewLine);
-            foreach (var line in lines)
+            var length = lines.Length;
+            for (int i = 0; i < length; ++i)
             {
+                var line = lines[i];
+
+                var firstIndex = line.IndexOfAnySymbol();
+                if (firstIndex < 0)
+                    continue;
+
+                if (line[firstIndex] == '#')
+                    continue;
+
                 var separatorIndex = line.IndexOf(':');
-                var key = line.Substring(0, separatorIndex).Trim();
+                var key = line.Substring(firstIndex, separatorIndex - firstIndex, StonExtensions.SubstringOptions.Trimmed);
 
                 var typeAndValueIndex = separatorIndex + 1;
                 var typeAndValue = line.Substring(typeAndValueIndex, line.Length - typeAndValueIndex);
 
                 var equalIndex = typeAndValue.IndexOf('=');
-                var type = typeAndValue.Substring(0, equalIndex).Trim();
+
+                var type = typeAndValue.Substring(0, equalIndex - 0, StonExtensions.SubstringOptions.Trimmed);
                 if (!TryGetConverter(type, settings, out var converter))
                     throw new Exception($"unsupported type '{type}'");
 
