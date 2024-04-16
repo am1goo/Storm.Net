@@ -80,26 +80,29 @@ namespace Ston
 
         private bool TryGetConverter(string type, StonSettings settings, out IStonConverter result)
         {
-            for (int i = 0; i < _converters.Count; ++i)
+            if (TryGetConverter(_converters, type, out result))
+                return true;
+
+            if (TryGetConverter(settings.converters, type, out result))
+                return true;
+
+            return false;
+        }
+
+        private static bool TryGetConverter(IEnumerable<IStonConverter> list, string type, out IStonConverter result)
+        {
+            if (list == null)
             {
-                var converter = _converters[i];
+                result = default;
+                return false;
+            }
+
+            foreach (var converter in list)
+            {
                 if (converter.CanConvert(type))
                 {
                     result = converter;
                     return true;
-                }
-            }
-
-            if (settings.converters != null)
-            {
-                for (int i = 0; i < settings.converters.Count; ++i)
-                {
-                    var converter = settings.converters[i];
-                    if (converter.CanConvert(type))
-                    {
-                        result = converter;
-                        return true;
-                    }
                 }
             }
 
