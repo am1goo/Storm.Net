@@ -12,9 +12,11 @@ namespace Ston
                 if (firstIndex < 0)
                     return string.Empty;
 
-                startIndex = Math.Max(startIndex, firstIndex);
+                var newIndex = Math.Max(startIndex, firstIndex);
+                var delta = newIndex - startIndex;
+                startIndex = newIndex;
 
-                var lastIndex = LastIndexOfAnySymbol(text, Math.Min(text.Length, startIndex + length));
+                var lastIndex = LastIndexOfAnySymbol(text, Math.Min(text.Length, startIndex + (length - delta)));
                 if (lastIndex < 0)
                     return string.Empty;
 
