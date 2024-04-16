@@ -33,7 +33,7 @@ namespace Ston
                 settings = StonSettings.defaultSettings;
 
             var type = typeof(T);
-            var ignoreCase = settings.permissions.HasFlag(StonSettings.Permissions.IgnoreCase);
+            var ignoreCase = settings.options.HasFlag(StonSettings.Options.IgnoreCase);
 
             var obj = Activator.CreateInstance<T>();
             var pis = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty);
