@@ -38,7 +38,27 @@ namespace Ston.Serializers
             switch (stonType)
             {
                 case StonValue.Type.Boolean:
-                    var boolValue = trimmed == "1" || trimmed == "yes" || bool.Parse(trimmed);
+                    var boolValue = default(bool);
+                    if (string.Equals(trimmed, "1", System.StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        boolValue = true;
+                    }
+                    else if (string.Equals(trimmed, "yes", System.StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        boolValue = true;
+                    }
+                    else if (string.Equals(trimmed, "0", System.StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        boolValue = false;
+                    }
+                    else if (string.Equals(trimmed, "no", System.StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        boolValue = false;
+                    }
+                    else
+                    {
+                        boolValue = bool.Parse(trimmed);
+                    }
                     return new StonValue(boolValue);
 
                 case StonValue.Type.Byte:

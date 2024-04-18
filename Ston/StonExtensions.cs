@@ -58,6 +58,27 @@ namespace Ston
             return -1;
         }
 
+        private static StonValue.Type ToStonType(this TypeCode typeCode)
+        {
+            switch (typeCode)
+            {
+                case TypeCode.Boolean: return StonValue.Type.Boolean;
+                case TypeCode.Byte: return StonValue.Type.Byte;
+                case TypeCode.SByte: return StonValue.Type.SByte;
+                case TypeCode.Int16: return StonValue.Type.Int16;
+                case TypeCode.Int32: return StonValue.Type.Int32;
+                case TypeCode.Int64: return StonValue.Type.Int64;
+                case TypeCode.UInt16: return StonValue.Type.UInt16;
+                case TypeCode.UInt32: return StonValue.Type.UInt32;
+                case TypeCode.UInt64: return StonValue.Type.UInt64;
+                case TypeCode.Single: return StonValue.Type.Single;
+                case TypeCode.Double: return StonValue.Type.Double;
+                case TypeCode.Decimal: return StonValue.Type.Decimal;
+                case TypeCode.String: return StonValue.Type.String;
+                default: throw new Exception($"unsupported type {typeCode}");
+            }
+        }
+
         public enum SubstringOptions
         {
             Trimmed = 1 << 0,

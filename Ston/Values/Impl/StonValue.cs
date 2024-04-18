@@ -2,7 +2,7 @@
 
 namespace Ston
 {
-    public class StonValue
+    public class StonValue : IStonValue
     {
         private Type _type;
         public Type type => _type;
@@ -154,6 +154,12 @@ namespace Ston
         public string AsString()
         {
             return _stringValue;
+        }
+
+        public void Populate(StonFieldOrProperty fieldOrProperty, object obj, StonSettings settings)
+        {
+            var value = GetValue();
+            fieldOrProperty.SetValue(obj, value);
         }
 
         public object GetValue()
