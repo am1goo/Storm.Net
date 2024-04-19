@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Ston.Serializers.Loaders
 {
     internal interface IUrlStonLoader
     {
-        StonObject Deserialize(Uri uri, StonContext ctx);
+        Task<StonObject> DeserializeAsync(Uri uri, StonContext ctx);
     }
 }

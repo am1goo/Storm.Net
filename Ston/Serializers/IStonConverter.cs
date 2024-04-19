@@ -1,8 +1,10 @@
-﻿namespace Ston.Serializers
+﻿using System.Threading.Tasks;
+
+namespace Ston.Serializers
 {
     public interface IStonConverter
     {
         bool CanConvert(string type);
-        IStonValue Deserialize(string type, string text, StonContext ctx);
+        Task<IStonValue> DeserializeAsync(string type, string text, StonContext ctx);
     }
 }

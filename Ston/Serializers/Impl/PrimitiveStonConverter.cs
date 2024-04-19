@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Ston.Serializers
 {
@@ -31,7 +32,7 @@ namespace Ston.Serializers
             return _types.ContainsKey(type);
         }
 
-        public IStonValue Deserialize(string type, string text, StonContext ctx)
+        public async Task<IStonValue> DeserializeAsync(string type, string text, StonContext ctx)
         {
             var stonType = _types[type];
             var trimmed = text.Trim().ToLowerInvariant();

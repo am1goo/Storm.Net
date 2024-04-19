@@ -1,6 +1,7 @@
 ﻿using Ston.Serializers.Loaders;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Ston.Serializers
 {
@@ -18,7 +19,7 @@ namespace Ston.Serializers
             return type == "url";
         }
 
-        public IStonValue Deserialize(string type, string text, StonContext ctx)
+        public async Task<IStonValue> DeserializeAsync(string type, string text, StonContext ctx)
         {
             if (!Uri.TryCreate(text, UriKind.RelativeOrAbsolute, out var uri))
                 return StonValue.nil;
@@ -26,7 +27,7 @@ namespace Ston.Serializers
             if (!_loaders.TryGetValue(uri.Scheme, out var loader))
                 return StonValue.nil;
 
-            return loader.Deserialize(uri, ctx);
+            return await loader.DeserializeAsync(uri, ctx);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Ston.Serializers.Loaders
 {
@@ -7,7 +8,7 @@ namespace Ston.Serializers.Loaders
     {
         public static readonly FileUrlStonLoader instance = new FileUrlStonLoader();
 
-        public StonObject Deserialize(Uri uri, StonContext ctx)
+        public Task<StonObject> DeserializeAsync(Uri uri, StonContext ctx)
         {
             var path = $"{uri.Host}{uri.AbsolutePath}";
             if (!Path.IsPathRooted(path))
@@ -26,7 +27,7 @@ namespace Ston.Serializers.Loaders
                 using (var sr = new StreamReader(fs))
                 {
                     var ston = sr.ReadToEnd();
-                    return ctx.serializer.Deserialize(ston, ctx);
+                    return ctx.serializer.DeserializeAsync(ston, ctx);
                 }
             }
         }
