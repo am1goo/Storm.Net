@@ -17,6 +17,7 @@ namespace Ston
         private IReadOnlyList<IStonConverter> _converters = new List<IStonConverter>
         {
             PrimitiveStonConverter.instance,
+            UrlStonConverter.instance,
         };
 
         public Task<StonObject> DeserializeFileAsync(string filePath, StonSettings settings = default)
@@ -35,16 +36,23 @@ namespace Ston
                 using (var sr = new StreamReader(fs))
                 {
                     var ston = await sr.ReadToEndAsync();
+                    settings.cwd = fileInfo.Directory.FullName;
                     return Deserialize(ston, settings);
                 }
             }
         }
 
-        public StonObject Deserialize(string ston, StonSettings settings = default)
+        public StonObject Deserialize(string ston, StonSettings settings)
         {
             if (settings == null)
                 settings = StonSettings.defaultSettings;
 
+            var ctx = new StonContext(this, settings);
+            return Deserialize(ston, ctx);
+        }
+
+        internal StonObject Deserialize(string ston, StonContext ctx)
+        {
             var obj = new StonObject();
             var lines = ston.Split(Environment.NewLine);
             var length = lines.Length;
@@ -62,14 +70,14 @@ namespace Ston
                 var separatorIndex = line.IndexOf(Separator);
                 if (separatorIndex < 0)
                 {
-                    if (TryParseObject(ref i, lines, settings, out var key, out var stonObject))
+                    if (TryParseObject(ref i, lines, ctx, out var key, out var stonObject))
                     {
                         obj.Add(key, stonObject);
                     }
                 }
                 else
                 {
-                    if (TryParseValue(ref i, lines, settings, out var key, out var stonValue))
+                    if (TryParseValue(ref i, lines, ctx, out var key, out var stonValue))
                     {
                         obj.Add(key, stonValue);
                     }
@@ -78,7 +86,7 @@ namespace Ston
             return obj;
         }
 
-        private bool TryParseObject(ref int index, string[] lines, StonSettings settings, out string key, out StonObject stonObject)
+        private bool TryParseObject(ref int index, string[] lines, StonContext ctx, out string key, out IStonValue stonObject)
         {
             var line = lines[index];
 
@@ -136,7 +144,7 @@ namespace Ston
                     continue;
 
                 var ston = sb.ToString();
-                parsed = Deserialize(ston, settings);
+                parsed = Deserialize(ston, ctx);
                 break;
             }
             StonCache<StringBuilder>.Push(sb);
@@ -151,7 +159,7 @@ namespace Ston
             return true;
         }
 
-        private bool TryParseValue(ref int index, string[] lines, StonSettings settings, out string key, out StonValue stonValue)
+        private bool TryParseValue(ref int index, string[] lines, StonContext ctx, out string key, out IStonValue stonValue)
         {
             var line = lines[index];
             var separatorIndex = line.IndexOf(Separator);
@@ -166,13 +174,13 @@ namespace Ston
             var equalIndex = typeAndValue.IndexOf(Equal);
 
             var type = typeAndValue.Substring(0, equalIndex - 0, StonExtensions.SubstringOptions.Trimmed);
-            if (!TryGetConverter(type, settings, out var converter))
+            if (!TryGetConverter(type, ctx.settings, out var converter))
                 throw new Exception($"unsupported type '{type}'");
 
             var valueIndex = equalIndex + 1;
             var valueStr = typeAndValue.Substring(valueIndex, typeAndValue.Length - valueIndex);
 
-            stonValue = converter.Deserialize(type, valueStr);
+            stonValue = converter.Deserialize(type, valueStr, ctx);
             if (stonValue == null)
                 throw new Exception($"converter {converter} should to return {nameof(StonValue)} for key '{key}' and type '{type}'");
 

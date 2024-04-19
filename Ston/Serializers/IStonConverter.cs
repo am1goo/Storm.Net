@@ -3,6 +3,6 @@
     public interface IStonConverter
     {
         bool CanConvert(string type);
-        StonValue Deserialize(string type, string text);
+        IStonValue Deserialize(string type, string text, StonContext ctx);
     }
 }

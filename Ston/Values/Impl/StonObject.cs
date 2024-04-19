@@ -41,7 +41,7 @@ namespace Ston
             return (T)Populate(type, settings);
         }
 
-        public object Populate(Type type, StonSettings settings = default)
+        public object Populate(Type type, StonSettings settings)
         {
             if (settings == null)
                 settings = StonSettings.defaultSettings;

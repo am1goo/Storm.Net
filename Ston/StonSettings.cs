@@ -14,6 +14,9 @@ namespace Ston
         private Options _options;
         public Options options => _options;
 
+        private string _cwd;
+        public string cwd { get => _cwd; set => _cwd = value; }
+
         private List<IStonConverter> _converters;
         public IReadOnlyList<IStonConverter> converters => _converters;
 

@@ -31,7 +31,7 @@ namespace Ston.Serializers
             return _types.ContainsKey(type);
         }
 
-        public StonValue Deserialize(string type, string text)
+        public IStonValue Deserialize(string type, string text, StonContext ctx)
         {
             var stonType = _types[type];
             var trimmed = text.Trim().ToLowerInvariant();
@@ -107,6 +107,9 @@ namespace Ston.Serializers
 
                 case StonValue.Type.String:
                     return new StonValue(text);
+
+                case StonValue.Type.Null:
+                    return StonValue.nil;
 
                 default:
                     return null;

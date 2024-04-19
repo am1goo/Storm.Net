@@ -4,6 +4,11 @@ namespace Ston
 {
     public class StonValue : IStonValue
     {
+        internal static readonly StonValue nil = new StonValue
+        {
+            _type = Type.Null,
+        };
+
         private Type _type;
         public Type type => _type;
 
@@ -156,6 +161,16 @@ namespace Ston
             return _stringValue;
         }
 
+        public StonValue()
+        {
+            _type = Type.Null;
+        }
+
+        public object AsNull()
+        {
+            return null;
+        }
+
         public void Populate(StonFieldOrProperty fieldOrProperty, object obj, StonSettings settings)
         {
             var value = GetValue();
@@ -192,6 +207,8 @@ namespace Ston
                     return AsDecimal();
                 case Type.String:
                     return AsString();
+                case Type.Null:
+                    return AsNull();
                 default:
                     throw new Exception($"unsupported type {_type}");
             }
@@ -200,6 +217,9 @@ namespace Ston
         public override string ToString()
         {
             var value = GetValue();
+            if (value == null)
+                return "[null]";
+
             return value.ToString();
         }
 
@@ -218,6 +238,7 @@ namespace Ston
             Double      = 10,
             Decimal     = 11,
             String      = 12,
+            Null        = 13,
         }
     }
 }
