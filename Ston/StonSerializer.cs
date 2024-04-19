@@ -105,7 +105,7 @@ namespace Ston
                 return ParsedValue.Invalid();
 
             var intent = 0;
-            var parsed = default(StonObject);
+            var ston = default(string);
             StonCache<StringBuilder>.Pop(out var sb);
             for (int i = index; i < lines.Length; ++i)
             {
@@ -140,15 +140,15 @@ namespace Ston
                 if (intent != 0)
                     continue;
 
-                var ston = sb.ToString();
-                parsed = await DeserializeAsync(ston, ctx);
+                ston = sb.ToString();
                 break;
             }
             StonCache<StringBuilder>.Push(sb);
 
-            if (parsed == null)
+            if (ston == null)
                 return ParsedValue.Invalid();
 
+            var parsed = await DeserializeAsync(ston, ctx);
             return new ParsedValue(index, key, parsed);
         }
 
