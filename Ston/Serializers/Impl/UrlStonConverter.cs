@@ -12,6 +12,8 @@ namespace Ston.Serializers
         private readonly Dictionary<string, IUrlStonLoader> _loaders = new Dictionary<string, IUrlStonLoader>
         {
             { "file", FileUrlStonLoader.instance },
+            { "http", HttpUrlStonLoader.instance },
+            { "https", HttpUrlStonLoader.instance },
         };
 
         public bool CanConvert(string type)

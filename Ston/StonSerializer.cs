@@ -31,12 +31,12 @@ namespace Ston
             if (!fileInfo.Exists)
                 return null;
 
+            settings.SetCwd(fileInfo.Directory.FullName);
             using (var fs = fileInfo.OpenRead())
             {
                 using (var sr = new StreamReader(fs))
                 {
                     var ston = await sr.ReadToEndAsync();
-                    settings.cwd = fileInfo.Directory.FullName;
                     return await DeserializeAsync(ston, settings);
                 }
             }
@@ -47,7 +47,7 @@ namespace Ston
             if (settings == null)
                 settings = StonSettings.defaultSettings;
 
-            var ctx = new StonContext(this, settings);
+            var ctx = new StonContext(this, settings, settings.cwd);
             return DeserializeAsync(ston, ctx);
         }
 

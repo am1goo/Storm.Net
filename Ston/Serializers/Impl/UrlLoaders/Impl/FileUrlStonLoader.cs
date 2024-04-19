@@ -8,12 +8,12 @@ namespace Ston.Serializers.Loaders
     {
         public static readonly FileUrlStonLoader instance = new FileUrlStonLoader();
 
-        public Task<StonObject> DeserializeAsync(Uri uri, StonContext ctx)
+        public async Task<StonObject> DeserializeAsync(Uri uri, StonContext ctx)
         {
             var path = $"{uri.Host}{uri.AbsolutePath}";
             if (!Path.IsPathRooted(path))
             {
-                var cwd = ctx.settings.cwd;
+                var cwd = ctx.cwd;
                 if (!string.IsNullOrWhiteSpace(cwd))
                     path = Path.Combine(cwd, path);
             }
@@ -22,12 +22,13 @@ namespace Ston.Serializers.Loaders
             if (!fi.Exists)
                 throw new Exception($"file {fi.FullName} not found");
 
+            ctx.cwd = fi.Directory.FullName;
             using (var fs = fi.OpenRead())
             {
                 using (var sr = new StreamReader(fs))
                 {
-                    var ston = sr.ReadToEnd();
-                    return ctx.serializer.DeserializeAsync(ston, ctx);
+                    var ston = await sr.ReadToEndAsync();
+                    return await ctx.serializer.DeserializeAsync(ston, ctx);
                 }
             }
         }
