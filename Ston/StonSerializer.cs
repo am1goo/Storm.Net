@@ -90,22 +90,39 @@ namespace Ston
             return obj;
         }
 
-        private async Task<ParsedValue> TryParseObject(int index, string[] lines, StonContext ctx)
+        private async Task<ParsedValue<IStonValue>> TryParseObject(int index, string[] lines, StonContext ctx)
         {
+            if (!TryGetStringBetweenChars(ref index, lines, BraceStart, BraceEnd, out var key, out var ston))
+                return ParsedValue<IStonValue>.Invalid();
+
+            var parsed = await DeserializeAsync(ston, ctx);
+            return new ParsedValue<IStonValue>(index, key, parsed);
+        }
+
+        private bool TryGetStringBetweenChars(ref int index, string[] lines, char charFrom, char charTo, out string key, out string result)
+        { 
             var line = lines[index];
 
             var equalIndex = line.IndexOf(Equal);
             if (equalIndex < 0)
-                return ParsedValue.Invalid();
+            {
+                key = default;
+                result = default;
+                return false;
+            }
 
-            var key = line.Substring(0, equalIndex, StonExtensions.SubstringOptions.Trimmed);
+            var parsedKey = line.Substring(0, equalIndex, StonExtensions.SubstringOptions.Trimmed);
 
-            var braceStartIndex = line.IndexOf(BraceStart);
+            var braceStartIndex = line.IndexOf(charFrom);
             if (braceStartIndex < 0)
-                return ParsedValue.Invalid();
+            {
+                key = default;
+                result = default;
+                return false;
+            }
 
             var intent = 0;
-            var ston = default(string);
+            var parsedSton = default(string);
             StonCache<StringBuilder>.Pop(out var sb);
             for (int i = index; i < lines.Length; ++i)
             {
@@ -117,12 +134,12 @@ namespace Ston
                 for (int n = 0; n < line.Length; ++n)
                 {
                     var c = line[n];
-                    if (c == BraceStart)
+                    if (c == charFrom)
                     {
                         skip = intent == 0;
                         intent++;
                     }
-                    else if (c == BraceEnd)
+                    else if (c == charTo)
                     {
                         intent--;
                         skip = intent == 0;
@@ -140,19 +157,24 @@ namespace Ston
                 if (intent != 0)
                     continue;
 
-                ston = sb.ToString();
+                parsedSton = sb.ToString();
                 break;
             }
             StonCache<StringBuilder>.Push(sb);
-
-            if (ston == null)
-                return ParsedValue.Invalid();
-
-            var parsed = await DeserializeAsync(ston, ctx);
-            return new ParsedValue(index, key, parsed);
+            
+            if (string.IsNullOrWhiteSpace(parsedSton))
+            {
+                key = default;
+                result = default;
+                return false;
+            }
+            
+            key = parsedKey;
+            result = parsedSton;
+            return true;
         }
 
-        private async Task<ParsedValue> TryParseValue(int index, string[] lines, StonContext ctx)
+        private async Task<ParsedValue<IStonValue>> TryParseValue(int index, string[] lines, StonContext ctx)
         {
             var line = lines[index];
             var separatorIndex = line.IndexOf(Separator);
@@ -177,7 +199,7 @@ namespace Ston
             if (stonValue == null)
                 throw new Exception($"converter {converter} should to return {nameof(StonValue)} for key '{key}' and type '{type}'");
 
-            return new ParsedValue(index, key, stonValue);
+            return new ParsedValue<IStonValue>(index, key, stonValue);
         }
 
         private bool TryGetConverter(string type, StonSettings settings, out IStonConverter result)
@@ -212,14 +234,14 @@ namespace Ston
             return false;
         }
 
-        private struct ParsedValue
+        private struct ParsedValue<T>
         {
             public bool valid;
             public int index;
             public string key;
-            public IStonValue value;
+            public T value;
 
-            public ParsedValue(int index, string key, IStonValue value)
+            public ParsedValue(int index, string key, T value)
             {
                 this.valid = true;
                 this.index = index;
@@ -227,9 +249,9 @@ namespace Ston
                 this.value = value;
             }
 
-            public static ParsedValue Invalid()
+            public static ParsedValue<T> Invalid()
             {
-                return new ParsedValue
+                return new ParsedValue<T>
                 {
                     valid = false
                 };
