@@ -129,37 +129,32 @@ namespace Ston
 
         private async Task<ParsedValue<IStonValue>> TryParseObject(int index, string[] lines, StonContext ctx)
         {
-            if (!TryGetStringBetweenChars(ref index, lines, BraceStart, BraceEnd, out var key, out var ston))
+            var line = lines[index];
+            var equalIndex = line.IndexOf(Equal);
+            if (equalIndex < 0)
+                return ParsedValue<IStonValue>.Invalid();
+
+            var key = line.Substring(0, equalIndex, StonExtensions.SubstringOptions.Trimmed);
+
+            if (!TryGetStringBetweenChars(ref index, lines, BraceStart, BraceEnd, out var ston))
                 return ParsedValue<IStonValue>.Invalid();
 
             var parsed = await DeserializeAsync(ston, ctx);
             return new ParsedValue<IStonValue>(index, key, parsed);
         }
 
-        private bool TryGetStringBetweenChars(ref int index, string[] lines, char charFrom, char charTo, out string key, out string result)
-        { 
+        private static bool TryGetStringBetweenChars(ref int index, string[] lines, char charFrom, char charTo, out string result)
+        {
             var line = lines[index];
-
-            var equalIndex = line.IndexOf(Equal);
-            if (equalIndex < 0)
-            {
-                key = default;
-                result = default;
-                return false;
-            }
-
-            var parsedKey = line.Substring(0, equalIndex, StonExtensions.SubstringOptions.Trimmed);
-
             var braceStartIndex = line.IndexOf(charFrom);
             if (braceStartIndex < 0)
             {
-                key = default;
                 result = default;
                 return false;
             }
 
             var intent = 0;
-            var parsedSton = default(string);
+            var ston = default(string);
             StonCache<StringBuilder>.Pop(out var sb);
             for (int i = index; i < lines.Length; ++i)
             {
@@ -194,20 +189,18 @@ namespace Ston
                 if (intent != 0)
                     continue;
 
-                parsedSton = sb.ToString();
+                ston = sb.ToString();
                 break;
             }
             StonCache<StringBuilder>.Push(sb);
             
-            if (string.IsNullOrWhiteSpace(parsedSton))
+            if (string.IsNullOrWhiteSpace(ston))
             {
-                key = default;
                 result = default;
                 return false;
             }
             
-            key = parsedKey;
-            result = parsedSton;
+            result = ston;
             return true;
         }
 
