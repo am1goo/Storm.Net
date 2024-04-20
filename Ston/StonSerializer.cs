@@ -109,40 +109,56 @@ namespace Ston
                 var separatorIndex = line.IndexOf(Separator);
                 if (separatorIndex < 0)
                 {
-                    var result = await TryParseObject(i, lines, ctx);
-                    if (result.valid)
+                    if (TryParseObject(ref i, lines, out var key, out var value))
                     {
-                        i = result.index;
-                        obj.Add(result.key, result.value);
+                        var stonObject = await DeserializeAsync(value, ctx);
+                        obj.Add(key, stonObject);
                     }
                 }
                 else
                 {
-                    var result = await TryParseValue(i, lines, ctx);
-                    if (result.valid)
+                    if (TryParseValue(ref i, lines, out var key, out var type, out var value))
                     {
-                        i = result.index;
-                        obj.Add(result.key, result.value);
+                        if (!TryGetConverter(type, ctx.settings, out var converter))
+                            throw new Exception($"unsupported type '{type}'");
+
+                        var stonValue = await converter.DeserializeAsync(type, value, ctx);
+                        if (stonValue == null)
+                            throw new Exception($"converter {converter} should to return {nameof(StonValue)} for type '{type}'");
+
+                        obj.Add(key, stonValue);
                     }
                 }
             }
             return obj;
         }
 
-        private async Task<ParsedValue<IStonValue>> TryParseObject(int index, string[] lines, StonContext ctx)
+        private bool TryParseObject(ref int index, string[] lines, out string key, out string value)
         {
             var line = lines[index];
             var equalIndex = line.IndexOf(Equal);
             if (equalIndex < 0)
-                return ParsedValue<IStonValue>.Invalid();
+            {
+                key = default;
+                value = default;
+                return false;
+            }
 
-            var key = line.Substring(0, equalIndex, StonExtensions.SubstringOptions.Trimmed);
+            var parsedKey = line.Substring(0, equalIndex, StonExtensions.SubstringOptions.Trimmed);
 
-            if (!TryGetStringBetweenTwoChars(ref index, lines, BraceStart, BraceEnd, out var ston))
-                return ParsedValue<IStonValue>.Invalid();
+            var i = index;
+            if (!TryGetStringBetweenTwoChars(ref i, lines, BraceStart, BraceEnd, out var parsedValue))
+            {
+                i = default;
+                key = default;
+                value = default;
+                return false;
+            }
 
-            var parsed = await DeserializeAsync(ston, ctx);
-            return new ParsedValue<IStonValue>(index, key, parsed);
+            index = i;
+            key = parsedKey;
+            value = parsedValue;
+            return true;
         }
 
         private static bool TryGetStringBetweenOneChar(ref int index, string[] lines, char charOne, out string result)
@@ -287,43 +303,36 @@ namespace Ston
             return true;
         }
 
-        private async Task<ParsedValue<IStonValue>> TryParseValue(int index, string[] lines, StonContext ctx)
+        private bool TryParseValue(ref int index, string[] lines, out string key, out string type, out string value)
         {
             var line = lines[index];
             var separatorIndex = line.IndexOf(Separator);
             if (separatorIndex < 0)
                 throw new Exception($"character '{Separator}' wasn't found in line {index}");
 
-            var key = line.Substring(0, separatorIndex, StonExtensions.SubstringOptions.Trimmed);
+            var parsedKey = line.Substring(0, separatorIndex, StonExtensions.SubstringOptions.Trimmed);
 
             var typeAndValueIndex = separatorIndex + 1;
             var typeAndValue = line.Substring(typeAndValueIndex, line.Length - typeAndValueIndex);
 
             var equalIndex = typeAndValue.IndexOf(Equal);
 
-            var type = typeAndValue.Substring(0, equalIndex - 0, StonExtensions.SubstringOptions.Trimmed);
-            if (!TryGetConverter(type, ctx.settings, out var converter))
-                throw new Exception($"unsupported type '{type}'");
-
+            var parsedType = typeAndValue.Substring(0, equalIndex - 0, StonExtensions.SubstringOptions.Trimmed);
+            var parsedValue = default(string);
             if (TryGetStringBetweenOneChar(ref index, lines, Quote, out var text))
             {
-                var stonValue = await converter.DeserializeAsync(type, text, ctx);
-                if (stonValue == null)
-                    throw new Exception($"converter {converter} should to return {nameof(StonValue)} for key '{key}' and type '{type}'");
-
-                return new ParsedValue<IStonValue>(index, key, stonValue);
+                parsedValue = text;
             }
             else
             {
                 var valueIndex = equalIndex + 1;
-                var valueStr = typeAndValue.Substring(valueIndex, typeAndValue.Length - valueIndex);
-
-                var stonValue = await converter.DeserializeAsync(type, valueStr, ctx);
-                if (stonValue == null)
-                    throw new Exception($"converter {converter} should to return {nameof(StonValue)} for key '{key}' and type '{type}'");
-
-                return new ParsedValue<IStonValue>(index, key, stonValue);
+                parsedValue = typeAndValue.Substring(valueIndex, typeAndValue.Length - valueIndex);
             }
+
+            key = parsedKey;
+            type = parsedType;
+            value = parsedValue;
+            return true;
         }
 
         private bool TryGetConverter(string type, StonSettings settings, out IStonConverter result)
@@ -356,30 +365,6 @@ namespace Ston
 
             result = default;
             return false;
-        }
-
-        private struct ParsedValue<T>
-        {
-            public bool valid;
-            public int index;
-            public string key;
-            public T value;
-
-            public ParsedValue(int index, string key, T value)
-            {
-                this.valid = true;
-                this.index = index;
-                this.key = key;
-                this.value = value;
-            }
-
-            public static ParsedValue<T> Invalid()
-            {
-                return new ParsedValue<T>
-                {
-                    valid = false
-                };
-            }
         }
     }
 }
