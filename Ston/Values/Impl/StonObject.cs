@@ -7,9 +7,7 @@ namespace Ston
 {
     public class StonObject : IStonValue
     {
-
         private Dictionary<string, IStonValue> _entries;
-        public IReadOnlyDictionary<string, IStonValue> entries => _entries;
 
         public IStonValue this[string key]
         {
