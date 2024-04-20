@@ -23,7 +23,7 @@ namespace Ston.Serializers
             { StonValue.Type.Single,    "f"     },
             { StonValue.Type.Double,    "d"     },
             { StonValue.Type.Decimal,   "dec"   },
-            { StonValue.Type.String,    "str"   }
+            { StonValue.Type.String,    "t"     }
         };
         private static readonly Dictionary<string, StonValue.Type> _types = _postfixes.ToDictionary(keySelector => keySelector.Value, valueSelector => valueSelector.Key);
 
