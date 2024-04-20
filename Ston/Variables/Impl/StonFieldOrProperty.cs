@@ -3,13 +3,14 @@ using System.Reflection;
 
 namespace Ston
 {
-    public class StonFieldOrProperty
+    public class StonFieldOrProperty : IStonVariable
     {
+        private object _obj;
         private FieldOrProperty _type;
         private FieldInfo _fieldInfo;
         private PropertyInfo _propertyInfo;
 
-        public Type targetType
+        public Type type
         {
             get
             {
@@ -25,28 +26,30 @@ namespace Ston
             }
         }
 
-        public StonFieldOrProperty(FieldInfo fieldInfo)
+        public StonFieldOrProperty(object obj, FieldInfo fieldInfo)
         {
+            _obj = obj;
             _type = FieldOrProperty.Field;
             _fieldInfo = fieldInfo;
         }
 
-        public StonFieldOrProperty(PropertyInfo propertyInfo)
+        public StonFieldOrProperty(object obj, PropertyInfo propertyInfo)
         {
+            _obj = obj;
             _type = FieldOrProperty.Property;
             _propertyInfo = propertyInfo;
         }
 
-        public void SetValue(object obj, object value)
+        public void SetValue(object value)
         {
             switch (_type)
             {
                 case FieldOrProperty.Field:
-                    _fieldInfo.SetValue(obj, value);
+                    _fieldInfo.SetValue(_obj, value);
                     break;
 
                 case FieldOrProperty.Property:
-                    _propertyInfo.SetValue(obj, value);
+                    _propertyInfo.SetValue(_obj, value);
                     break;
             }
         }

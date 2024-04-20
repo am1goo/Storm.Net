@@ -15,6 +15,8 @@ namespace Ston
         private const char Quote        = '"';
         private const char BraceStart   = '{';
         private const char BraceEnd     = '}';
+        private const char BracketStart = '[';
+        private const char BracketEnd   = ']';
 
         private IReadOnlyList<IStonConverter> _converters = new List<IStonConverter>
         {
@@ -90,9 +92,14 @@ namespace Ston
             return DeserializeAsync(ston, ctx);
         }
 
-        internal async Task<StonObject> DeserializeAsync(string ston, StonContext ctx)
+        internal Task<StonObject> DeserializeAsync(string ston, StonContext ctx)
         {
             var obj = new StonObject();
+            return DeserializeAsync(obj, ston, ctx);
+        }
+
+        internal async Task<T> DeserializeAsync<T>(T obj, string ston, StonContext ctx) where T : IStonContainer
+        {
             var lines = ston.Split(Environment.NewLine);
             var length = lines.Length;
             for (int i = 0; i < length; ++i)
@@ -114,6 +121,12 @@ namespace Ston
                         var stonObject = await DeserializeAsync(value, ctx);
                         obj.Add(key, stonObject);
                     }
+                    else if (TryParseArray(ref i, lines, out key, out value))
+                    {
+                        var stonArray = new StonArray();
+                        stonArray = await DeserializeAsync(stonArray, value, ctx);
+                        obj.Add(key, stonArray);
+                    }
                 }
                 else
                 {
@@ -133,7 +146,17 @@ namespace Ston
             return obj;
         }
 
+        private bool TryParseArray(ref int index, string[] lines, out string key, out string value)
+        {
+            return TryParseText(ref index, lines, BracketStart, BracketEnd, out key, out value);
+        }
+
         private bool TryParseObject(ref int index, string[] lines, out string key, out string value)
+        {
+            return TryParseText(ref index, lines, BraceStart, BraceEnd, out key, out value);
+        }
+
+        private bool TryParseText(ref int index, string[] lines, char charFrom, char charTo, out string key, out string value)
         {
             var line = lines[index];
             var equalIndex = line.IndexOf(Equal);
@@ -147,7 +170,7 @@ namespace Ston
             var parsedKey = line.Substring(0, equalIndex, StonExtensions.SubstringOptions.Trimmed);
 
             var i = index;
-            if (!TryGetStringBetweenTwoChars(ref i, lines, BraceStart, BraceEnd, out var parsedValue))
+            if (!TryGetStringBetweenTwoChars(ref i, lines, charFrom, charTo, out var parsedValue))
             {
                 i = default;
                 key = default;
@@ -220,6 +243,7 @@ namespace Ston
             var ston = sb.ToString();
             if (unescape)
                 ston = Regex.Unescape(ston);
+            sb.Clear();
             StonCache<StringBuilder>.Push(sb);
 
             if (string.IsNullOrWhiteSpace(ston))
@@ -289,6 +313,7 @@ namespace Ston
                 ston = sb.ToString();
                 if (unescape)
                     ston = Regex.Unescape(ston);
+                sb.Clear();
                 break;
             }
             StonCache<StringBuilder>.Push(sb);

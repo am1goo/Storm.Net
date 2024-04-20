@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Ston
 {
-    public class StonObject : IStonValue
+    public class StonObject : IStonValue, IStonContainer
     {
         private Dictionary<string, IStonValue> _entries;
 
@@ -22,15 +22,15 @@ namespace Ston
             _entries = new Dictionary<string, IStonValue>();
         }
 
-        internal void Add(string key, IStonValue value)
+        void IStonContainer.Add(string key, IStonValue value)
         {
             _entries.Add(key, value);
         }
 
-        public void Populate(StonFieldOrProperty fieldOrProperty, object obj, StonSettings settings)
+        public void Populate(IStonVariable variable, StonSettings settings)
         {
-            var value = Populate(fieldOrProperty.targetType, settings);
-            fieldOrProperty.SetValue(obj, value);
+            var value = Populate(variable.type, settings);
+            variable.SetValue(value);
         }
 
         public T Populate<T>(StonSettings settings = default)
@@ -53,16 +53,16 @@ namespace Ston
             {
                 if (TryGetValue(pi.Name, ignoreCase, pi.PropertyType, out var value))
                 {
-                    var fieldOrProperty = new StonFieldOrProperty(pi);
-                    value.Populate(fieldOrProperty, obj, settings);
+                    var fieldOrProperty = new StonFieldOrProperty(obj, pi);
+                    value.Populate(fieldOrProperty, settings);
                 }
             }
             foreach (var fi in fis)
             {
                 if (TryGetValue(fi.Name, ignoreCase, fi.FieldType, out var value))
                 {
-                    var fieldOrProperty = new StonFieldOrProperty(fi);
-                    value.Populate(fieldOrProperty, obj, settings);
+                    var fieldOrProperty = new StonFieldOrProperty(obj, fi);
+                    value.Populate(fieldOrProperty, settings);
                 }
             }
             return obj;
@@ -129,6 +129,7 @@ namespace Ston
             var str = sb.ToString();
             _toStringIntent--;
 
+            sb.Clear();
             StonCache<StringBuilder>.Push(sb);
             return str;
         }

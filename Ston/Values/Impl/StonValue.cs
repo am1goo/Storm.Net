@@ -171,10 +171,10 @@ namespace Ston
             return null;
         }
 
-        public void Populate(StonFieldOrProperty fieldOrProperty, object obj, StonSettings settings)
+        public void Populate(IStonVariable variable, StonSettings settings)
         {
             var value = GetValue();
-            fieldOrProperty.SetValue(obj, value);
+            variable.SetValue(value);
         }
 
         public object GetValue()

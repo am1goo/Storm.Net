@@ -9,19 +9,28 @@ namespace Ston
 
         internal static void Pop(out T stringBuilder)
         {
-            if (_cachedBuilders.Count > 0)
+            lock (_cachedBuilders)
             {
-                stringBuilder = _cachedBuilders.Dequeue();
-            }
-            else
-            {
-                stringBuilder = Activator.CreateInstance<T>();
+                if (_cachedBuilders.Count > 0)
+                {
+                    stringBuilder = _cachedBuilders.Dequeue();
+                }
+                else
+                {
+                    stringBuilder = Activator.CreateInstance<T>();
+                }
             }
         }
 
         internal static void Push(T stringBuilder)
         {
-            _cachedBuilders.Contains(stringBuilder);
+            lock (_cachedBuilders)
+            {
+                if (_cachedBuilders.Contains(stringBuilder))
+                    return;
+
+                _cachedBuilders.Enqueue(stringBuilder);
+            }
         }
     }
 }

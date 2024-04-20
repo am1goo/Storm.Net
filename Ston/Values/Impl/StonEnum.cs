@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 
 namespace Ston
 {
@@ -12,16 +11,16 @@ namespace Ston
             _text = text;
         }
 
-        public void Populate(StonFieldOrProperty fieldOrProperty, object obj, StonSettings settings)
+        public void Populate(IStonVariable variable, StonSettings settings)
         {
-            var type = fieldOrProperty.targetType;
+            var type = variable.type;
             if (!type.IsEnum)
-                throw new Exception($"target type {fieldOrProperty.targetType} should be enum");
+                throw new Exception($"target type {variable.type} should be enum");
 
             if (!Enum.TryParse(type, _text, out var parsed))
                 throw new Exception($"target type cannot be parsed from string '{_text}'");
 
-            fieldOrProperty.SetValue(obj, parsed);
+            variable.SetValue(parsed);
         }
 
         public override string ToString()
