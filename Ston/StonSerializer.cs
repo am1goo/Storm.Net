@@ -17,6 +17,7 @@ namespace Ston
         private IReadOnlyList<IStonConverter> _converters = new List<IStonConverter>
         {
             PrimitiveStonConverter.instance,
+            EnumStonConverter.instance,
             UrlStonConverter.instance,
         };
 
