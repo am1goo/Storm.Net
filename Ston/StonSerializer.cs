@@ -20,10 +20,34 @@ namespace Ston
             UrlStonConverter.instance,
         };
 
+        public async Task<T> DeserializeFileAsync<T>(string filePath, StonSettings settings = default)
+        {
+            var obj = await DeserializeFileAsync(filePath, settings);
+            return obj.Populate<T>(settings);
+        }
+
+        public async Task<object> DeserializeFileAsync(Type type, string filePath, StonSettings settings = default)
+        {
+            var obj = await DeserializeFileAsync(filePath, settings);
+            return obj.Populate(type, settings);
+        }
+
         public Task<StonObject> DeserializeFileAsync(string filePath, StonSettings settings = default)
         {
             var fi = new FileInfo(filePath);
             return DeserializeFileAsync(fi, settings);
+        }
+
+        public async Task<T> DeserializeFileAsync<T>(FileInfo fileInfo, StonSettings settings = default)
+        {
+            var obj = await DeserializeFileAsync(fileInfo, settings);
+            return obj.Populate<T>(settings);
+        }
+
+        public async Task<object> DeserializeFileAsync(Type type, FileInfo fileInfo, StonSettings settings = default)
+        {
+            var obj = await DeserializeFileAsync(fileInfo, settings);
+            return obj.Populate(type, settings);
         }
 
         public async Task<StonObject> DeserializeFileAsync(FileInfo fileInfo, StonSettings settings = default)
@@ -40,6 +64,18 @@ namespace Ston
                     return await DeserializeAsync(ston, settings);
                 }
             }
+        }
+
+        public async Task<T> DeserializeAsync<T>(string ston, StonSettings settings)
+        {
+            var obj = await DeserializeAsync(ston, settings);
+            return obj.Populate<T>(settings);
+        }
+
+        public async Task<object> DeserializeAsync(Type type, string ston, StonSettings settings)
+        {
+            var obj = await DeserializeAsync(ston, settings);
+            return obj.Populate(type, settings);
         }
 
         public Task<StonObject> DeserializeAsync(string ston, StonSettings settings)
