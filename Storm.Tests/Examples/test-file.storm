@@ -35,6 +35,8 @@ int32_array = [
 ]
 magic_enum_as_str:e =       Two
 magic_enum_as_int:e =    3             
+
+int_to_ignore = 999
 array_object = [
     #another comment
 ]

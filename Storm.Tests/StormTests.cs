@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using Storm.Attributes;
 using Storm.Serializers;
 using System.Collections.Generic;
 
@@ -42,6 +43,7 @@ namespace Storm.Tests
             AreEqual(testObj.decimal_value_func(), testStorm["decimal_value"]);
             AreEqual(testObj.string_value, testStorm[nameof(testObj.string_value)]);
             AreEqual(testObj.multi_string_value, testStorm[nameof(testObj.multi_string_value)]);
+            Assert.AreEqual(testObj.int_to_ignore, 0);
 
             var innerObj = testObj.inner_object;
             var innerStorm = testStorm[nameof(testObj.inner_object)] as StormObject;
@@ -110,6 +112,9 @@ namespace Storm.Tests
 
             public MagicEnum magic_enum_as_str;
             public MagicEnum magic_enum_as_int;
+
+            [StormIgnore]
+            public int int_to_ignore;
 
             public enum MagicEnum
             {

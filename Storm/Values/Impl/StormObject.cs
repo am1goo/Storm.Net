@@ -51,6 +51,9 @@ namespace Storm
             var fis = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField | BindingFlags.SetField);
             foreach (var pi in pis)
             {
+                if (pi.ShouldBeIgnored())
+                    continue;
+
                 if (TryGetValue(pi.Name, ignoreCase, pi.PropertyType, out var value))
                 {
                     var fieldOrProperty = new StormFieldOrProperty(obj, pi);
@@ -59,6 +62,9 @@ namespace Storm
             }
             foreach (var fi in fis)
             {
+                if (fi.ShouldBeIgnored())
+                    continue;
+
                 if (TryGetValue(fi.Name, ignoreCase, fi.FieldType, out var value))
                 {
                     var fieldOrProperty = new StormFieldOrProperty(obj, fi);

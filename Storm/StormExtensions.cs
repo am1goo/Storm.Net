@@ -1,9 +1,36 @@
-﻿using System;
+﻿using Storm.Attributes;
+using System;
+using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace Storm
 {
     public static class StormExtensions
     {
+        public static bool ShouldBeIgnored(this PropertyInfo pi)
+        {
+            return HasIgnoreAttributes(pi);
+        }
+
+        public static bool ShouldBeIgnored(this FieldInfo fi)
+        {
+            return HasIgnoreAttributes(fi);
+        }
+
+        public static bool HasIgnoreAttributes(MemberInfo mi)
+        { 
+            foreach (var attr in mi.CustomAttributes)
+            {
+                if (attr.AttributeType == typeof(StormIgnoreAttribute))
+                    return true;
+
+                if (attr.AttributeType == typeof(IgnoreDataMemberAttribute))
+                    return true;
+            }
+
+            return false;
+        }
+
         public static string Substring(this string text, int startIndex, int length, SubstringOptions options)
         {
             if (options.HasFlag(SubstringOptions.Trimmed))
