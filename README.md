@@ -2,6 +2,14 @@
 ![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr/am1goo/Storm.Net)
 ![GitHub License](https://img.shields.io/github/license/am1goo/Storm.Net)
 
+<a href="https://www.nuget.org/packages/am1goo.Storm.Net" rel="nofollow">
+<img alt="NuGet Version" src="https://img.shields.io/nuget/v/am1goo.Storm.Net">
+</a>
+
+<a href="https://www.nuget.org/packages/am1goo.Storm.Net" rel="nofollow">
+<img alt="NuGet Downloads" src="https://img.shields.io/nuget/dt/am1goo.Storm.Net">
+</a>
+
 ## Storm.Net
 **STORM (Strong Typed Object Referenced Model)** - another way to make a deal with configuration files. \
 It's easy to use and give to you unlimited power to control every field or property in your file.
