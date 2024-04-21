@@ -83,6 +83,9 @@ obj = {
 - Ability to inline any amount of inherit files (from local files or web servers)
 - Customization of deserialization process (you can add support to any your custom types!)
 
+## Known limitations
+- Currently only deserialization is supported.
+
 ## Requirements
 - .NET Core 5.0 and higher
 
