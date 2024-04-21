@@ -12,7 +12,7 @@
 
 ## Ston.Net
 **STON (Strong Typed Object Notation)** - another way to make a deal with configuration files. \
-It's easy to use and give to you unlimited power to control every field or property in your file.
+It's easy to use and give to you unlimited power to control every field or property in your file. \
 *ATTENTION: don't confuse with other STON term (SmallTalk Object Notation)*
 
 ## Why I made it?
@@ -22,12 +22,12 @@ For example: [GTA 5 game config](https://nee.lv/2021/02/28/How-I-cut-GTA-Online-
 And I've decided that it could be easy to modify if it will have some tips like type definitions.
 
 ## Syntax
-Parameter key and his type shoud be separate by colon symbol `:`. \
-Value should be next after equals sign `=`. \
+Parameter key and his type shoud be separate by `:` colon symbol. \
+Value should be next after `=` equals sign.
 
-- Primitive and custom types, also enums: `{param name}:{type} = {value}`
-- Arrays: `{array name} = [ .. any values between brackets .. ]`
-- Objects: `{object name} = { .. any properties between braces .. }`
+- Primitive and custom types, also enums: `{param name}`:`{type}` = `{value}`
+- Arrays: `{array name}` = `[ .. any values between brackets .. ]`
+- Objects: `{object name}` = `{ .. any properties between braces .. }`
 
 ## Built-in primitive types:
 - `b` - boolean
