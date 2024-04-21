@@ -4,8 +4,14 @@
 
 ## Ston.Net
 **STON (Strong Typed Object Notation)** - another way to make a deal with configuration files. \
-It's easy to use and give to you unlimited power to control every field or property in your file. \
+It's easy to use and give to you unlimited power to control every field or property in your file.
 *ATTENTION: don't confuse with other STON term (SmallTalk Object Notation)*
+
+## Why I made it?
+I have been work in video game industry at least 10 year and I've see how many errors was produced by regular game designers who works with `JSON` config files. Each error can produce bugs and our most large time-eaters - tasks in trackers! \
+As you know, a lot of games used `JSON` format to declare game data and all of those files can be huge! \
+For example: [GTA 5 game config](https://nee.lv/2021/02/28/How-I-cut-GTA-Online-loading-times-by-70/) has **63k items** and **10mb size**! \
+And I've decided that it could be easy to modify if it will have some tips like type definitions.
 
 ## Syntax
 Parameter key and his type shoud be separate by colon symbol `:`. \
@@ -83,6 +89,24 @@ obj = {
 - Single-line and multi-line strings
 - Ability to inline any amount of inherit files (from local files or web servers)
 - Customization of deserialization process (you can add support to any your custom types!)
+
+## Example
+```csharp
+using Ston;
+using Ston.Serializers;
+
+public class Example
+{
+  var settings = new StonSettings(StonSettings.Options.IgnoreCase, new List<IStonConverter>
+  {
+    new UrlStonConverter(), //added ability to load parts of data from other files
+  });
+
+  var serializer = new StonSerializer();
+  var obj = await serializer.DeserializeFileAsync("Examples/test-file.ston", settings);
+  /* do something with obj */
+}
+```
 
 ## Known limitations
 - Currently only deserialization is supported.
