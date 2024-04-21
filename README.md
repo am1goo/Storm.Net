@@ -4,7 +4,8 @@
 
 ## Ston.Net
 **STON (Strong Typed Object Notation)** - another way to make a deal with configuration files. \
-It's easy to use and give to you unlimited power to control every field or property in your file.
+It's easy to use and give to you unlimited power to control every field or property in your file. \
+*ATTENTION: don't confuse with other STON term (SmallTalk Object Notation)*
 
 ## Syntax
 Parameter key and his type shoud be separate by colon symbol `:`. \
@@ -32,7 +33,7 @@ Value should be next after equals sign `=`. \
 - `url` - path to external file
 
 ## File format
-```
+```ston
 #this is a comment
 
 #b - means "boolean" and can be one of case-insensitives values 'yes' or '1' or 'tRuE' or 'no' or '0' or 'fAlSe'
