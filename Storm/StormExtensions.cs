@@ -7,6 +7,11 @@ namespace Storm
 {
     public static class StormExtensions
     {
+        public static bool IsMultiline(this string str)
+        {
+            return str.Contains("\r") || str.Contains("\n");
+        }
+
         public static bool ShouldBeIgnored(this PropertyInfo pi)
         {
             return HasIgnoreAttributes(pi);
@@ -85,7 +90,21 @@ namespace Storm
             return -1;
         }
 
-        private static StormValue.Type ToStormType(this TypeCode typeCode)
+        public static bool TryToStormType(this TypeCode typeCode, out StormValue.Type result)
+        {
+            try
+            {
+                result = ToStormType(typeCode);
+                return true;
+            }
+            catch
+            {
+                result = default;
+                return false;
+            }
+        }
+
+        public static StormValue.Type ToStormType(this TypeCode typeCode)
         {
             switch (typeCode)
             {

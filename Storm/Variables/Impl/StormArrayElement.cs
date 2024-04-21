@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Storm
 {
-    public class StormArrayElement : IStormVariable
+    public struct StormArrayElement : IStormVariable
     {
+        private string _name;
+        public string name => _name;
+
         private Type _type;
         public Type type => _type;
 
@@ -12,9 +16,15 @@ namespace Storm
 
         public StormArrayElement(Type type, Array array, int index)
         {
+            _name = string.Empty;
             _type = type;
             _array = array;
             _index = index;
+        }
+
+        public void GetAttributes(List<Attribute> result)
+        {
+            //do nothing
         }
 
         public void SetValue(object value)

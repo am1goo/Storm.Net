@@ -1,12 +1,66 @@
 using NUnit.Framework;
 using Storm.Attributes;
 using Storm.Serializers;
+using System;
 using System.Collections.Generic;
 
 namespace Storm.Tests
 {
     public class Tests
     {
+        [Test]
+        public void SerializationTest()
+        {
+            var settings = StormSettings.Default();
+
+            var random = new Random();
+            var original = new TestObject
+            {
+                bool_value = true,
+                uint16_value = (ushort)random.Next(short.MinValue, short.MaxValue),
+                int32_value = random.Next(int.MinValue, int.MaxValue),
+                uint64_value = (ulong)random.Next(int.MinValue, int.MaxValue),
+                null_string_value = null,
+                single_string_value = "sadassjghadsfklahgjklahsd",
+                multi_string_value = "ad ad ad a d\nasd asd askfaj dsf \n asd sad ",
+                magic_enum_as_int = TestObject.MagicEnum.Three,
+                magic_enum_as_str = TestObject.MagicEnum.Five,
+            };
+
+            var serializer = new StormSerializer();
+            var serializeTask = serializer.SerializeAsync(original, settings);
+            serializeTask.Wait();
+            if (serializeTask.IsFaulted)
+                throw serializeTask.Exception;
+
+            var storm = serializeTask.Result;
+
+            var deserializeTask = serializer.DeserializeAsync<TestObject>(storm, settings);
+            deserializeTask.Wait();
+            if (deserializeTask.IsFaulted)
+                throw deserializeTask.Exception;
+
+            var deserialized = deserializeTask.Result;
+            Assert.NotNull(deserialized);
+            Assert.AreEqual(original.bool_value, deserialized.bool_value);
+            Assert.AreEqual(original.sbyte_value_func(), deserialized.sbyte_value_func());
+            Assert.AreEqual(original.byte_value, deserialized.byte_value);
+            Assert.AreEqual(original.int16_value_func(), deserialized.int16_value_func());
+            Assert.AreEqual(original.int32_value, deserialized.int32_value);
+            Assert.AreEqual(original.int64_value_func(), deserialized.int64_value_func());
+            Assert.AreEqual(original.uint16_value, deserialized.uint16_value);
+            Assert.AreEqual(original.uint32_value_func(), deserialized.uint32_value_func());
+            Assert.AreEqual(original.uint64_value, deserialized.uint64_value);
+            Assert.AreEqual(original.float_value_func(), deserialized.float_value_func());
+            Assert.AreEqual(original.double_value, deserialized.double_value);
+            Assert.AreEqual(original.decimal_value_func(), deserialized.decimal_value_func());
+            Assert.AreEqual(original.single_string_value, deserialized.single_string_value);
+            Assert.AreEqual(original.multi_string_value, deserialized.multi_string_value);
+            //Assert.AreEqual(original.int32_array, deserialized.int32_array);
+            Assert.AreEqual(original.magic_enum_as_str, original.magic_enum_as_str);
+            Assert.AreEqual(original.magic_enum_as_int, original.magic_enum_as_int);
+        }
+
         [Test]
         public void DeserializationTest()
         {
@@ -17,11 +71,12 @@ namespace Storm.Tests
                 {
                     new UrlStormConverter(),
                 },
-                encoding: System.Text.Encoding.UTF8
+                encoding: System.Text.Encoding.UTF8,
+                defaultEnumFormat: StormEnumFormat.String
             );
 
-            var storm = new StormSerializer();
-            var task = storm.DeserializeFileAsync("Examples/test-file.storm", settings);
+            var serializer = new StormSerializer();
+            var task = serializer.DeserializeFileAsync("Examples/test-file.storm", settings);
             task.Wait();
             if (task.IsFaulted)
                 throw task.Exception;
@@ -41,7 +96,7 @@ namespace Storm.Tests
             AreEqual(testObj.float_value_func(), testStorm["float_value"]);
             AreEqual(testObj.double_value, testStorm[nameof(testObj.double_value)]);
             AreEqual(testObj.decimal_value_func(), testStorm["decimal_value"]);
-            AreEqual(testObj.string_value, testStorm[nameof(testObj.string_value)]);
+            AreEqual(testObj.single_string_value, testStorm[nameof(testObj.single_string_value)]);
             AreEqual(testObj.multi_string_value, testStorm[nameof(testObj.multi_string_value)]);
             Assert.AreEqual(testObj.int_to_ignore, 0);
 
@@ -102,7 +157,8 @@ namespace Storm.Tests
             private decimal decimal_value;
             public decimal decimal_value_func() => decimal_value;
 
-            public string string_value;
+            public string null_string_value;
+            public string single_string_value;
             public string multi_string_value;
 
             public int[] int32_array;
@@ -110,7 +166,9 @@ namespace Storm.Tests
             public InnerObject inner_object;
             public ExternalObject external_object;
 
+            [StormEnum(format = StormEnumFormat.String)]
             public MagicEnum magic_enum_as_str;
+            [StormEnum(format = StormEnumFormat.Value)]
             public MagicEnum magic_enum_as_int;
 
             [StormIgnore]

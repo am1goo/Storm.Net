@@ -18,20 +18,25 @@ namespace Storm
         private Encoding _encoding;
         public Encoding encoding => _encoding;
 
-        public StormSettings(Options options, List<IStormConverter> converters, Encoding encoding)
+        private StormEnumFormat _defaultEnumFormat;
+        public StormEnumFormat defaultEnumFormat => _defaultEnumFormat;
+
+        public StormSettings(Options options, List<IStormConverter> converters, Encoding encoding, StormEnumFormat defaultEnumFormat)
         {
             _options = options;
             _converters = converters;
             _encoding = encoding;
+            _defaultEnumFormat = defaultEnumFormat;
         }
 
         public static StormSettings Default()
         {
             return new StormSettings
             (
-                options: 0,
-                converters: null,
-                encoding: Encoding.UTF8
+                options:            0,
+                converters:         null,
+                encoding:           Encoding.UTF8,
+                defaultEnumFormat:  StormEnumFormat.String
             );
         }
 

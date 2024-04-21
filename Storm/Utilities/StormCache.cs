@@ -1,35 +1,41 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Storm
 {
     internal static class StormCache<T>
     {
-        private static readonly Queue<T> _cachedBuilders = new Queue<T>();
+        private static readonly Queue<T> _cache = new Queue<T>();
 
-        internal static void Pop(out T stringBuilder)
+        internal static void Pop(out T obj)
         {
-            lock (_cachedBuilders)
+            lock (_cache)
             {
-                if (_cachedBuilders.Count > 0)
+                if (_cache.Count > 0)
                 {
-                    stringBuilder = _cachedBuilders.Dequeue();
+                    obj = _cache.Dequeue();
                 }
                 else
                 {
-                    stringBuilder = Activator.CreateInstance<T>();
+                    obj = Activator.CreateInstance<T>();
                 }
             }
         }
 
-        internal static void Push(T stringBuilder)
+        internal static void Push(T obj)
         {
-            lock (_cachedBuilders)
+            lock (_cache)
             {
-                if (_cachedBuilders.Contains(stringBuilder))
+                if (_cache.Contains(obj))
                     return;
 
-                _cachedBuilders.Enqueue(stringBuilder);
+                if (obj is IList list && list.Count > 0)
+                    list.Clear();
+                else if (obj is Queue queue && queue.Count > 0)
+                    queue.Clear();
+
+                _cache.Enqueue(obj);
             }
         }
     }

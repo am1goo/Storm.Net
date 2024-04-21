@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -20,9 +21,84 @@ namespace Storm
 
         private List<IStormConverter> _converters = new List<IStormConverter>
         {
-            PrimitiveStormConverter.instance,
             EnumStormConverter.instance,
+            PrimitiveStormConverter.instance,
         };
+        
+        public Task SerializeFileAsync(string filePath, object obj, StormSettings settings = default)
+        {
+            var fileInfo = new FileInfo(filePath);
+            return SerializeFileAsync(fileInfo, obj, settings);
+        }
+
+        public async Task SerializeFileAsync(FileInfo fileInfo, object obj, StormSettings settings = default)
+        {
+            if (settings == null)
+                settings = StormSettings.Default();
+
+            var storm = await SerializeAsync(obj, settings);
+
+            var exists = fileInfo.Exists;
+            using (var fs = exists ? fileInfo.OpenWrite() : fileInfo.Create())
+            {
+                fs.Seek(0, SeekOrigin.Begin);
+                using (var sw = new StreamWriter(fs, settings.encoding))
+                {
+                    await sw.WriteAsync(storm);
+                }
+            }
+        }
+
+        public Task<string> SerializeAsync(object obj, StormSettings settings = default)
+        {
+            if (settings == null)
+                settings = StormSettings.Default();
+
+            var ctx = new StormContext(this, settings, settings.cwd);
+            return SerializeAsync(obj, ctx);
+        }
+
+        internal async Task<string> SerializeAsync(object obj, StormContext ctx)
+        {
+            var type = obj.GetType();
+            var pis = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty);
+            var fis = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty);
+
+            StormCache<StringBuilder>.Pop(out var sb);
+            StormCache<List<StormFieldOrProperty>>.Pop(out var cache);
+            foreach (var pi in pis)
+            {
+                if (pi.ShouldBeIgnored())
+                    continue;
+
+                var variable = new StormFieldOrProperty(obj, pi);
+                cache.Add(variable);
+            }
+            foreach (var fi in fis)
+            {
+                if (fi.ShouldBeIgnored())
+                    continue;
+
+                var variable = new StormFieldOrProperty(obj, fi);
+                cache.Add(variable);
+            }
+
+            foreach (var variable in cache)
+            {
+                if (TryGetConverter(variable.type, ctx.settings, out var converter))
+                {
+                    var value = variable.GetValue();
+                    var str = await converter.SerializeAsync(variable, value, ctx);
+                    sb.AppendLine(str);
+                }
+            }
+            StormCache<List<StormFieldOrProperty>>.Push(cache);
+
+            var storm = sb.ToString();
+            sb.Clear();
+            StormCache<StringBuilder>.Push(sb);
+            return storm;
+        }
 
         public async Task<T> DeserializeFileAsync<T>(string filePath, StormSettings settings = default)
         {
@@ -373,7 +449,39 @@ namespace Storm
             return false;
         }
 
+        private bool TryGetConverter(Type type, StormSettings settings, out IStormConverter result)
+        {
+            if (TryGetConverter(_converters, type, out result))
+                return true;
+
+            if (TryGetConverter(settings.converters, type, out result))
+                return true;
+
+            return false;
+        }
+
         private static bool TryGetConverter(IEnumerable<IStormConverter> list, string type, out IStormConverter result)
+        {
+            if (list == null)
+            {
+                result = default;
+                return false;
+            }
+
+            foreach (var converter in list)
+            {
+                if (converter.CanConvert(type))
+                {
+                    result = converter;
+                    return true;
+                }
+            }
+
+            result = default;
+            return false;
+        }
+
+        private static bool TryGetConverter(IEnumerable<IStormConverter> list, Type type, out IStormConverter result)
         {
             if (list == null)
             {
