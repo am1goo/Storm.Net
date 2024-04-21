@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Ston.Serializers
 {
@@ -8,7 +9,7 @@ namespace Ston.Serializers
 
         public bool CanConvert(string type)
         {
-            return type == "e";
+            return type.Equals("e", StringComparison.InvariantCultureIgnoreCase);
         }
 
         public Task<IStonValue> DeserializeAsync(string type, string text, StonContext ctx)

@@ -7,8 +7,6 @@ namespace Ston.Serializers
 {
     public class UrlStonConverter : IStonConverter
     {
-        public static readonly UrlStonConverter instance = new UrlStonConverter();
-
         private readonly Dictionary<string, IUrlStonLoader> _loaders = new Dictionary<string, IUrlStonLoader>
         {
             { "file", FileUrlStonLoader.instance },
@@ -16,9 +14,24 @@ namespace Ston.Serializers
             { "https", HttpUrlStonLoader.instance },
         };
 
+        public UrlStonConverter AddLoader(string scheme, IUrlStonLoader loader)
+        {
+            if (string.IsNullOrWhiteSpace(scheme))
+                throw new Exception($"{nameof(scheme)} cannot be null");
+
+            if (loader == null)
+                throw new Exception($"{nameof(loader)} cannot be null");
+
+            if (_loaders.ContainsKey(scheme))
+                throw new Exception($"already contains registered loader for scheme '{scheme}'");
+
+            _loaders.Add(scheme, loader);
+            return this;
+        }
+
         public bool CanConvert(string type)
         {
-            return type == "url";
+            return type.Equals("url", StringComparison.InvariantCultureIgnoreCase);
         }
 
         public async Task<IStonValue> DeserializeAsync(string type, string text, StonContext ctx)

@@ -22,7 +22,6 @@ namespace Ston
         {
             PrimitiveStonConverter.instance,
             EnumStonConverter.instance,
-            UrlStonConverter.instance,
         };
 
         public async Task<T> DeserializeFileAsync<T>(string filePath, StonSettings settings = default)

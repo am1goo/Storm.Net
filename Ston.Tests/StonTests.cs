@@ -1,18 +1,18 @@
 using NUnit.Framework;
+using Ston.Serializers;
+using System.Collections.Generic;
 
 namespace Ston.Tests
 {
     public class Tests
     {
-        [SetUp]
-        public void Setup()
-        {
-        }
-
         [Test]
         public void DeserializationTest()
         {
-            var settings = StonSettings.defaultSettings;
+            var settings = new StonSettings(StonSettings.Options.IgnoreCase, new List<IStonConverter>
+            {
+                new UrlStonConverter(),
+            });
 
             var ston = new StonSerializer();
             var task = ston.DeserializeFileAsync("Examples/test-file.ston", settings);
