@@ -1,0 +1,13 @@
+﻿int16_value:s = -65   
+#this is a comment
+int32_value:i = -321
+int64_value:l = -43211234
+obj_array = [
+= {
+	bool_value:b = yes
+	dec_value:dec = 123321123
+}
+= {
+	bool_value:b = no
+	dec_value:dec = 321123321
+}]
