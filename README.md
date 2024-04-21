@@ -14,6 +14,23 @@ Value should be next after equals sign `=`. \
 - Arrays: `{array name} = [ .. any values between brackets .. ]`
 - Objects: `{object name} = { .. any properties between braces .. }`
 
+## Built-in primitive types:
+- `b` - boolean
+- `bt` - byte
+- `sbt` - signed byte
+- `s` - short (int16)
+- `us` - unsigned short (uint16)
+- `i` - integer (int32)
+- `ui` - unsigned integer (uint32)
+- `l` - long (int64)
+- `ul` - unsigned long (uint64)
+- `f` - single aka float
+- `d` - double
+- `dec` - decimal
+- `t` - string
+- `e` - enums
+- `url` - path to external file
+
 ## File format
 ```
 #this is a comment
