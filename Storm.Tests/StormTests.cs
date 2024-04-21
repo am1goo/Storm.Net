@@ -20,6 +20,10 @@ namespace Storm.Tests
                 uint16_value = (ushort)random.Next(short.MinValue, short.MaxValue),
                 int32_value = random.Next(int.MinValue, int.MaxValue),
                 uint64_value = (ulong)random.Next(int.MinValue, int.MaxValue),
+                int32_array = new int[]
+                {
+                    123, 13215, 5, 1345, 151, 24, 5, 12, 34123, 4, 1234
+                },
                 null_string_value = null,
                 single_string_value = "sadassjghadsfklahgjklahsd",
                 multi_string_value = "ad ad ad a d\nasd asd askfaj dsf \n asd sad ",
@@ -54,9 +58,9 @@ namespace Storm.Tests
             Assert.AreEqual(original.float_value_func(), deserialized.float_value_func());
             Assert.AreEqual(original.double_value, deserialized.double_value);
             Assert.AreEqual(original.decimal_value_func(), deserialized.decimal_value_func());
+            Assert.AreEqual(original.int32_array, deserialized.int32_array);
             Assert.AreEqual(original.single_string_value, deserialized.single_string_value);
             Assert.AreEqual(original.multi_string_value, deserialized.multi_string_value);
-            //Assert.AreEqual(original.int32_array, deserialized.int32_array);
             Assert.AreEqual(original.magic_enum_as_str, original.magic_enum_as_str);
             Assert.AreEqual(original.magic_enum_as_int, original.magic_enum_as_int);
         }
@@ -66,13 +70,14 @@ namespace Storm.Tests
         {
             var settings = new StormSettings
             (
-                options: StormSettings.Options.IgnoreCase,
-                converters: new List<IStormConverter>
-                {
-                    new UrlStormConverter(),
-                },
-                encoding: System.Text.Encoding.UTF8,
-                defaultEnumFormat: StormEnumFormat.String
+                options:            StormSettings.Options.IgnoreCase,
+                converters:         new List<IStormConverter>
+                                    {
+                                        new UrlStormConverter(),
+                                    },
+                encoding:           System.Text.Encoding.UTF8,
+                defaultEnumFormat:  StormEnumFormat.String,
+                intentSize:         2
             );
 
             var serializer = new StormSerializer();

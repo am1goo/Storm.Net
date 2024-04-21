@@ -82,15 +82,14 @@ namespace Storm
                 var variable = new StormFieldOrProperty(obj, fi);
                 cache.Add(variable);
             }
-
             foreach (var variable in cache)
             {
-                if (TryGetConverter(variable.type, ctx.settings, out var converter))
-                {
-                    var value = variable.GetValue();
-                    var str = await converter.SerializeAsync(variable, value, ctx);
-                    sb.AppendLine(str);
-                }
+                var var = variable.GetValue();
+                var str = await SerializeAsync(variable, var, ctx);
+                if (str == null)
+                    continue;
+
+                sb.AppendLine(str);
             }
             StormCache<List<StormFieldOrProperty>>.Push(cache);
 
@@ -98,6 +97,53 @@ namespace Storm
             sb.Clear();
             StormCache<StringBuilder>.Push(sb);
             return storm;
+        }
+
+        internal async Task<string> SerializeAsync(IStormVariable variable, object obj, StormContext ctx)
+        {
+            var type = variable.type;
+            if (type.IsArray)
+            {
+                const int expectedRank = 1;
+                var actualRank = type.GetArrayRank();
+                if (actualRank != expectedRank)
+                    return null;
+
+                if (!type.HasElementType)
+                    return null;
+
+                var array = obj as Array;
+                if (array == null)
+                    return null;
+
+                var elementType = type.GetElementType();
+
+                StormCache<StringBuilder>.Pop(out var asb);
+                asb.Append($"{variable.name} = ");
+                asb.Append(BracketStart).Append(Environment.NewLine);
+                for (int i = 0; i < array.Length; ++i)
+                {
+                    var elementValue = array.GetValue(i);
+                    var elementVar = new StormArrayElement(elementType, array, i);
+                    var elementStr = await SerializeAsync(elementVar, elementValue, ctx);
+
+                    var intent = ctx.settings.intent;
+                    asb.Append(intent).Append(elementStr).Append(Environment.NewLine);
+                }
+                asb.Append(BracketEnd).Append(Environment.NewLine);
+                var str = asb.ToString();
+                asb.Clear();
+                StormCache<StringBuilder>.Push(asb);
+                return str;
+            }
+            else if (TryGetConverter(variable.type, ctx.settings, out var converter))
+            {
+                return await converter.SerializeAsync(variable, obj, ctx);
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public async Task<T> DeserializeFileAsync<T>(string filePath, StormSettings settings = default)
