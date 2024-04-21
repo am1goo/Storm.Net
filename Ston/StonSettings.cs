@@ -18,7 +18,7 @@ namespace Ston
         public string cwd => _cwd;
 
         private List<IStonConverter> _converters;
-        public IReadOnlyList<IStonConverter> converters => _converters;
+        public IEnumerable<IStonConverter> converters => _converters;
 
         public StonSettings(Options options, List<IStonConverter> converters)
         {

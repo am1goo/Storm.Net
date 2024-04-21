@@ -18,7 +18,7 @@ namespace Ston
         private const char BracketStart = '[';
         private const char BracketEnd   = ']';
 
-        private IReadOnlyList<IStonConverter> _converters = new List<IStonConverter>
+        private List<IStonConverter> _converters = new List<IStonConverter>
         {
             PrimitiveStonConverter.instance,
             EnumStonConverter.instance,

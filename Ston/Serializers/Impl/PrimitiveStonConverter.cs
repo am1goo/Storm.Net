@@ -32,11 +32,17 @@ namespace Ston.Serializers
             return _types.ContainsKey(type);
         }
 
-        public async Task<IStonValue> DeserializeAsync(string type, string text, StonContext ctx)
+        public Task<IStonValue> DeserializeAsync(string type, string text, StonContext ctx)
         {
             var stonType = _types[type];
+            var obj = Parse(stonType, text, ctx);
+            return Task.FromResult<IStonValue>(obj);
+        }
+
+        private StonValue Parse(StonValue.Type type, string text, StonContext ctx)
+        { 
             var trimmed = text.Trim().ToLowerInvariant();
-            switch (stonType)
+            switch (type)
             {
                 case StonValue.Type.Boolean:
                     var boolValue = default(bool);

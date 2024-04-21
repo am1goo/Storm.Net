@@ -1,7 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFrameworks>netcoreapp2.0;netcoreapp2.1;netcoreapp2.2;netcoreapp3.0;netcoreapp3.1;netstandard2.1;net5.0;net6.0;net7.0;net8.0</TargetFrameworks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageId>am1goo.Ston.Net</PackageId>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+    <Authors>Pavel "am1goo" Shestakov</Authors>
+    <Product>Ston.Net</Product>
+    <Company>Pavel "am1goo" Shestakov</Company>
+    <Copyright>Pavel "am1goo" Shestakov</Copyright>
+    <Description>STON (Strong Typed Object Notation) - another way to make a deal with configuration files.
+It's easy to use and give to you unlimited power to control every field or property in your file.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/am1goo/Ston.Net</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/am1goo/Ston.Net</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>ston, strong, typed, inline, system, csharp, dotnet, text, serialization, deserialization, web, include</PackageTags>
+	<NoWarn>NU1901;NU1902;NU1903;NU1904</NoWarn>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
 </Project>
