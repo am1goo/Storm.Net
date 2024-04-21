@@ -88,7 +88,8 @@ obj = {
 - Currently only deserialization is supported.
 
 ## Requirements
-- .NET Core App 2.0 or higher
+- Visual Studio 2019 or higher
+- .NET App 2.0 or higher
 - .NET Standard 2.1 or higher
 - .NET Core 5.0 and higher
 
