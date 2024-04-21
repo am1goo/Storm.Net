@@ -1,0 +1,41 @@
+﻿    bool_value:b = true  
+  sbyte_value:sbt = -125  
+  byte_value:bt = 32 
+int16_value:s = -34   
+#this is a comment
+  int32_value:i =   -123
+int64_value:l = -24124124
+ uint16_value:us   =    34
+uint32_value:ui   = "123"
+          #this is a comment too
+ uint64_value:ul =   24124124
+float_value:f =   32.32
+  double_value:d =   3421.4321
+decimal_value:dec = 231239821
+   string_value:t = asdasdhjagvhdsjkgashgjk ashdf jdshfkasd hfEdhjkf hadsjkfhadsjk hfsadhjfasjd k
+   multi_string_value:t = "SAdas dasd
+asdasdasd \"yoba!\" asd 
+sad asd asd sd a asd "
+inner_object = {   
+     int_value:i=213
+  float_value:f=54321.123
+   bool_value:b=no
+     internal_object ={
+        int32_value:i = 4321
+        super_duper_str:t = "asdjaskfl 
+asdfsadfj ksf 
+   fas   sad fasd fas"
+     }
+}
+int32_array = [
+:i=1
+:i=  2
+:i= 4
+:i = 8
+]
+magic_enum_as_str:e =       Two
+magic_enum_as_int:e =    3             
+array_object = [
+    #another comment
+]
+external_object:url =    file://inner_1/part-file.storm   

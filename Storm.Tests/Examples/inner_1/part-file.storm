@@ -1,0 +1,14 @@
+﻿int16_value:s = -34   
+#this is a comment
+int32_value:i = -123
+int64_value:l = -24124124
+inner_value:url = file://inner_2/part-file.storm
+str_array = [
+	:t=yoba1
+	:t=yoba2
+	:t="yoba3.1
+yoba3.2
+yoba3.3"
+	:t=yoba4
+	:t=yoba9
+]

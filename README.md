@@ -105,18 +105,18 @@ dotnet add package am1goo.Storm.Net
     
 ## Example
 ```csharp
-using Ston;
-using Ston.Serializers;
+using Storm;
+using Storm.Serializers;
 
 public class Example
 {
-  var settings = new StonSettings(StonSettings.Options.IgnoreCase, new List<IStonConverter>
+  var settings = new StormSettings(StormSettings.Options.IgnoreCase, new List<IStormConverter>
   {
-    new UrlStonConverter(), //added ability to load parts of data from other files
+    new UrlStormConverter(), //added ability to load parts of data from other files
   });
 
-  var serializer = new StonSerializer();
-  var obj = await serializer.DeserializeFileAsync("Examples/test-file.ston", settings);
+  var serializer = new StormSerializer();
+  var obj = await serializer.DeserializeFileAsync("Examples/test-file.storm", settings);
   /* do something with obj */
 }
 ```
