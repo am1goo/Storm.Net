@@ -98,6 +98,20 @@ obj = {
 - Ability to inline any amount of inherit files (from local files or web servers)
 - Customization of deserialization process (you can add support to any your custom types!)
 
+## Installation
+You can install NuGet packages into a .NET project.
+1. Open a command prompt and go to your's project folder
+2. Use the following command to install the Ston.Net package:
+```dotnetcli
+dotnet add package am1goo.Ston.Net
+```
+3. After the command completes, open the *.csproj* file in Visual Studio to see the added NuGet package reference:
+```xml
+<ItemGroup>
+  <PackageReference Include="am1goo.Ston.Net" Version="1.0.0" />
+</ItemGroup>
+```
+    
 ## Example
 ```csharp
 using Ston;
