@@ -1,19 +1,10 @@
-![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/am1goo/Ston.Net)
-![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr/am1goo/Ston.Net)
-![GitHub License](https://img.shields.io/github/license/am1goo/Ston.Net)
+![GitHub Issues or Pull Requests](https://img.shields.io/github/issues/am1goo/Storm.Net)
+![GitHub Issues or Pull Requests](https://img.shields.io/github/issues-pr/am1goo/Storm.Net)
+![GitHub License](https://img.shields.io/github/license/am1goo/Storm.Net)
 
-<a href="https://www.nuget.org/packages/am1goo.Ston.Net" rel="nofollow">
-<img alt="NuGet Version" src="https://img.shields.io/nuget/v/am1goo.Ston.Net">
-</a>
-
-<a href="https://www.nuget.org/packages/am1goo.Ston.Net" rel="nofollow">
-<img alt="NuGet Downloads" src="https://img.shields.io/nuget/dt/am1goo.Ston.Net">
-</a>
-
-## Ston.Net
-**STON (Strong Typed Object Notation)** - another way to make a deal with configuration files. \
-It's easy to use and give to you unlimited power to control every field or property in your file. \
-*ATTENTION: don't confuse with other STON term (SmallTalk Object Notation)*
+## Storm.Net
+**STORM (Strong Typed Object Referenced Model)** - another way to make a deal with configuration files. \
+It's easy to use and give to you unlimited power to control every field or property in your file.
 
 ## Why I made it?
 I have been work in video game industry at least 10 year and I've see how many errors was produced by regular game designers who works with `JSON` config files. Each error can produce bugs and our most large time-eaters - tasks in trackers! \
@@ -47,7 +38,7 @@ Value should be next after `=` equals sign.
 - `url` - path to external file
 
 ## File format
-```ston
+```storm
 #this is a comment
 
 #b - means "boolean" and can be one of case-insensitives values 'yes' or '1' or 'tRuE' or 'no' or '0' or 'fAlSe'
@@ -86,8 +77,8 @@ array_1 = [
 
 #any inline objects should be mapped via type 'url'
 obj = {
-  internal:url = file:///home/user/internal.ston
-  external:url = http://youhostname.domain/files/external.ston
+  internal:url = file:///home/user/internal.storm
+  external:url = http://youhostname.domain/files/external.storm
 }
 ```
 
@@ -101,14 +92,14 @@ obj = {
 ## Installation
 You can install NuGet packages into a .NET project.
 1. Open a command prompt and go to your's project folder
-2. Use the following command to install the Ston.Net package:
+2. Use the following command to install the Storm.Net package:
 ```dotnetcli
-dotnet add package am1goo.Ston.Net
+dotnet add package am1goo.Storm.Net
 ```
 3. After the command completes, open the *.csproj* file in Visual Studio to see the added NuGet package reference:
 ```xml
 <ItemGroup>
-  <PackageReference Include="am1goo.Ston.Net" Version="1.0.0" />
+  <PackageReference Include="am1goo.Storm.Net" Version="1.0.0" />
 </ItemGroup>
 ```
     
