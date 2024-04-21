@@ -1,16 +1,11 @@
 ﻿using Ston.Serializers;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Ston
 {
     public class StonSettings
     {
-        public static readonly StonSettings defaultSettings = new StonSettings
-        (
-            options: 0,
-            converters: null
-        );
-
         private Options _options;
         public Options options => _options;
 
@@ -20,10 +15,24 @@ namespace Ston
         private List<IStonConverter> _converters;
         public IEnumerable<IStonConverter> converters => _converters;
 
-        public StonSettings(Options options, List<IStonConverter> converters)
+        private Encoding _encoding;
+        public Encoding encoding => _encoding;
+
+        public StonSettings(Options options, List<IStonConverter> converters, Encoding encoding)
         {
             _options = options;
             _converters = converters;
+            _encoding = encoding;
+        }
+
+        public static StonSettings Default()
+        {
+            return new StonSettings
+            (
+                options: 0,
+                converters: null,
+                encoding: Encoding.UTF8
+            );
         }
 
         internal void SetCwd(string cwd)

@@ -9,10 +9,15 @@ namespace Ston.Tests
         [Test]
         public void DeserializationTest()
         {
-            var settings = new StonSettings(StonSettings.Options.IgnoreCase, new List<IStonConverter>
-            {
-                new UrlStonConverter(),
-            });
+            var settings = new StonSettings
+            (
+                options: StonSettings.Options.IgnoreCase,
+                converters: new List<IStonConverter>
+                {
+                    new UrlStonConverter(),
+                },
+                encoding: System.Text.Encoding.UTF8
+            );
 
             var ston = new StonSerializer();
             var task = ston.DeserializeFileAsync("Examples/test-file.ston", settings);

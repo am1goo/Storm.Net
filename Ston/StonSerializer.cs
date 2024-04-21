@@ -59,10 +59,13 @@ namespace Ston
             if (!fileInfo.Exists)
                 return null;
 
+            if (settings == null)
+                settings = StonSettings.Default();
+
             settings.SetCwd(fileInfo.Directory.FullName);
             using (var fs = fileInfo.OpenRead())
             {
-                using (var sr = new StreamReader(fs))
+                using (var sr = new StreamReader(fs, settings.encoding))
                 {
                     var ston = await sr.ReadToEndAsync();
                     return await DeserializeAsync(ston, settings);
@@ -85,7 +88,7 @@ namespace Ston
         public Task<StonObject> DeserializeAsync(string ston, StonSettings settings)
         {
             if (settings == null)
-                settings = StonSettings.defaultSettings;
+                settings = StonSettings.Default();
 
             var ctx = new StonContext(this, settings, settings.cwd);
             return DeserializeAsync(ston, ctx);

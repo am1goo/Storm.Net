@@ -42,7 +42,7 @@ namespace Ston
         public object Populate(Type type, StonSettings settings)
         {
             if (settings == null)
-                settings = StonSettings.defaultSettings;
+                settings = StonSettings.Default();
 
             var ignoreCase = settings.options.HasFlag(StonSettings.Options.IgnoreCase);
 
