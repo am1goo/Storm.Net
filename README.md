@@ -37,7 +37,9 @@ Value should be next after `=` equals sign.
 - `e` - enums
 - `url` - path to external file
 
-## File format
+## File association and format
+*.storm* - is preferred extension for STORM files
+
 ```storm
 #this is a comment
 
