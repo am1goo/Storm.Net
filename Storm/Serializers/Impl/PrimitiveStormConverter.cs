@@ -80,6 +80,19 @@ namespace Storm.Serializers
                         }
                     }
 
+                case StormValue.Type.Single:
+                    {
+                        var value = ((float)obj).ToString(ctx.numberCultureInfo);
+                        var str = $"{key}:{type} = {value}";
+                        return Task.FromResult(str);
+                    }
+                case StormValue.Type.Double:
+                    {
+                        var value = ((double)obj).ToString(ctx.numberCultureInfo);
+                        var str = $"{key}:{type} = {value}";
+                        return Task.FromResult(str);
+                    }
+
                 default:
                     {
                         var value = obj.ToString();
@@ -90,7 +103,7 @@ namespace Storm.Serializers
         }
 
         private StormValue Parse(StormValue.Type type, string text, StormContext ctx)
-        { 
+        {
             var trimmed = text.Trim().ToLowerInvariant();
             switch (type)
             {
@@ -151,11 +164,11 @@ namespace Storm.Serializers
                     return new StormValue(ulongValue);
 
                 case StormValue.Type.Single:
-                    var floatValue = float.Parse(trimmed, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat);
+                    var floatValue = float.Parse(trimmed, NumberStyles.Any, ctx.numberCultureInfo);
                     return new StormValue(floatValue);
 
                 case StormValue.Type.Double:
-                    var doubleValue = double.Parse(trimmed, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat);
+                    var doubleValue = double.Parse(trimmed, NumberStyles.Any, ctx.numberCultureInfo);
                     return new StormValue(doubleValue);
 
                 case StormValue.Type.Decimal:

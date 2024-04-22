@@ -2,11 +2,19 @@
 using System;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text;
 
 namespace Storm
 {
     public static class StormExtensions
     {
+        public static StringBuilder AppendKey(this StringBuilder sb, string key)
+        {
+            if (!string.IsNullOrEmpty(key))
+                sb.Append(key).Append(' ');
+            return sb.Append('=').Append(' ');
+        }
+
         public static bool IsMultiline(this string str)
         {
             return str.Contains("\r") || str.Contains("\n");

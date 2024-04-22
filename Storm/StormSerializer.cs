@@ -58,9 +58,17 @@ namespace Storm
             return SerializeAsync(obj, ctx);
         }
 
-        internal async Task<string> SerializeAsync(object obj, StormContext ctx)
+        internal Task<string> SerializeAsync(object obj, StormContext ctx)
         {
             var type = obj.GetType();
+            return SerializeAsync(type, obj, ctx);
+        }
+
+        internal async Task<string> SerializeAsync(Type type, object obj, StormContext ctx)
+        {
+            if (obj == null)
+                return string.Empty;
+
             var pis = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty);
             var fis = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty);
 
@@ -118,31 +126,59 @@ namespace Storm
 
                 var elementType = type.GetElementType();
 
-                StormCache<StringBuilder>.Pop(out var asb);
-                asb.Append($"{variable.name} = ");
-                asb.Append(BracketStart).Append(Environment.NewLine);
+                StormCache<StringBuilder>.Pop(out var sb);
+                var intent = ctx.settings.GetIntent(ctx.intent);
+                sb.Append(intent).AppendKey(variable.name);
+                sb.Append(BracketStart).Append(Environment.NewLine);
+                ctx.intent++;
                 for (int i = 0; i < array.Length; ++i)
                 {
                     var elementValue = array.GetValue(i);
                     var elementVar = new StormArrayElement(elementType, array, i);
                     var elementStr = await SerializeAsync(elementVar, elementValue, ctx);
-
-                    var intent = ctx.settings.intent;
-                    asb.Append(intent).Append(elementStr).Append(Environment.NewLine);
+                    sb.Append(elementStr).Append(Environment.NewLine);
                 }
-                asb.Append(BracketEnd).Append(Environment.NewLine);
-                var str = asb.ToString();
-                asb.Clear();
-                StormCache<StringBuilder>.Push(asb);
+                ctx.intent--;
+                sb.Append(intent).Append(BracketEnd);
+                var str = sb.ToString();
+                sb.Clear();
+                StormCache<StringBuilder>.Push(sb);
+
                 return str;
             }
             else if (TryGetConverter(variable.type, ctx.settings, out var converter))
             {
-                return await converter.SerializeAsync(variable, obj, ctx);
+                var intent = ctx.settings.GetIntent(ctx.intent);
+                StormCache<StringBuilder>.Pop(out var sb);
+                var storm = await converter.SerializeAsync(variable, obj, ctx);
+                sb.Append(intent).Append(storm);
+                var str = sb.ToString();
+                sb.Clear();
+                StormCache<StringBuilder>.Push(sb);
+
+                return str;
             }
             else
             {
-                return null;
+                ctx.intent++;
+                var storm = await SerializeAsync(type, obj, ctx);
+                ctx.intent--;
+                if (string.IsNullOrEmpty(storm))
+                    return null;
+
+                var intent = ctx.settings.GetIntent(ctx.intent);
+                ctx.intent++;
+                StormCache<StringBuilder>.Pop(out var sb);
+                sb.Append(intent).AppendKey(variable.name);
+                sb.Append(BraceStart).Append(Environment.NewLine);
+                sb.Append(storm);
+                sb.Append(intent).Append(BraceEnd);
+                var str = sb.ToString();
+                sb.Clear();
+                StormCache<StringBuilder>.Push(sb);
+                ctx.intent--;
+
+                return str;
             }
         }
 

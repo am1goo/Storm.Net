@@ -3,6 +3,7 @@ using Storm.Attributes;
 using Storm.Serializers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Storm.Tests
 {
@@ -27,6 +28,45 @@ namespace Storm.Tests
                 null_string_value = null,
                 single_string_value = "sadassjghadsfklahgjklahsd",
                 multi_string_value = "ad ad ad a d\nasd asd askfaj dsf \n asd sad ",
+
+                inner_object = new TestObject.InnerObject
+                {
+                    bool_value = true,
+                    int_value = random.Next(int.MinValue, int.MaxValue),
+                    float_value = (float)random.NextDouble(),
+                    internal_object = new TestObject.InnerObject.InternalObject
+                    {
+                        int32_value = random.Next(int.MinValue, int.MaxValue)
+                    },
+                },
+                external_object = new TestObject.ExternalObject
+                {
+                    inner_value = new TestObject.ExternalObject.InnerValue
+                    {
+                         int16_value = (short)random.Next(short.MinValue, short.MaxValue),
+                         int32_value = random.Next(int.MinValue, int.MaxValue),
+                         int64_value = random.Next(int.MinValue, int.MaxValue),
+                         obj_array = new TestObject.ExternalObject.InnerValue.ArrayElement[]
+                         {
+                             new TestObject.ExternalObject.InnerValue.ArrayElement
+                             {
+                                 bool_value = random.Next(0, 2) == 1,
+                                 dec_value = random.Next(int.MinValue, int.MaxValue),
+                             },
+                             new TestObject.ExternalObject.InnerValue.ArrayElement
+                             {
+                                 bool_value = random.Next(0, 2) == 1,
+                                 dec_value = random.Next(int.MinValue, int.MaxValue),
+                             },
+                             new TestObject.ExternalObject.InnerValue.ArrayElement
+                             {
+                                 bool_value = random.Next(0, 2) == 1,
+                                 dec_value = random.Next(int.MinValue, int.MaxValue),
+                             },
+                         }
+                    }
+                },
+
                 magic_enum_as_int = TestObject.MagicEnum.Three,
                 magic_enum_as_str = TestObject.MagicEnum.Five,
             };
@@ -46,23 +86,7 @@ namespace Storm.Tests
 
             var deserialized = deserializeTask.Result;
             Assert.NotNull(deserialized);
-            Assert.AreEqual(original.bool_value, deserialized.bool_value);
-            Assert.AreEqual(original.sbyte_value_func(), deserialized.sbyte_value_func());
-            Assert.AreEqual(original.byte_value, deserialized.byte_value);
-            Assert.AreEqual(original.int16_value_func(), deserialized.int16_value_func());
-            Assert.AreEqual(original.int32_value, deserialized.int32_value);
-            Assert.AreEqual(original.int64_value_func(), deserialized.int64_value_func());
-            Assert.AreEqual(original.uint16_value, deserialized.uint16_value);
-            Assert.AreEqual(original.uint32_value_func(), deserialized.uint32_value_func());
-            Assert.AreEqual(original.uint64_value, deserialized.uint64_value);
-            Assert.AreEqual(original.float_value_func(), deserialized.float_value_func());
-            Assert.AreEqual(original.double_value, deserialized.double_value);
-            Assert.AreEqual(original.decimal_value_func(), deserialized.decimal_value_func());
-            Assert.AreEqual(original.int32_array, deserialized.int32_array);
-            Assert.AreEqual(original.single_string_value, deserialized.single_string_value);
-            Assert.AreEqual(original.multi_string_value, deserialized.multi_string_value);
-            Assert.AreEqual(original.magic_enum_as_str, original.magic_enum_as_str);
-            Assert.AreEqual(original.magic_enum_as_int, original.magic_enum_as_int);
+            Assert.AreEqual(original, deserialized);
         }
 
         [Test]
@@ -70,14 +94,15 @@ namespace Storm.Tests
         {
             var settings = new StormSettings
             (
-                options:            StormSettings.Options.IgnoreCase,
-                converters:         new List<IStormConverter>
-                                    {
-                                        new UrlStormConverter(),
-                                    },
-                encoding:           System.Text.Encoding.UTF8,
-                defaultEnumFormat:  StormEnumFormat.String,
-                intentSize:         2
+                options:                StormSettings.Options.IgnoreCase,
+                converters:             new List<IStormConverter>
+                                        {
+                                            new UrlStormConverter(),
+                                        },
+                encoding:               System.Text.Encoding.UTF8,
+                defaultEnumFormat:      StormEnumFormat.String,
+                numberDecimalSeparator: ",",
+                intentSize:             2
             );
 
             var serializer = new StormSerializer();
@@ -179,6 +204,59 @@ namespace Storm.Tests
             [StormIgnore]
             public int int_to_ignore;
 
+            public override bool Equals(object obj)
+            {
+                return obj is TestObject other &&
+                       bool_value == other.bool_value &&
+                       sbyte_value == other.sbyte_value &&
+                       byte_value == other.byte_value &&
+                       int16_value == other.int16_value &&
+                       int32_value == other.int32_value &&
+                       int64_value == other.int64_value &&
+                       uint16_value == other.uint16_value &&
+                       uint32_value == other.uint32_value &&
+                       uint64_value == other.uint64_value &&
+                       float_value == other.float_value &&
+                       double_value == other.double_value &&
+                       decimal_value == other.decimal_value &&
+                       null_string_value == other.null_string_value &&
+                       single_string_value == other.single_string_value &&
+                       multi_string_value == other.multi_string_value &&
+                       Enumerable.SequenceEqual(int32_array, other.int32_array) &&
+                       EqualityComparer<InnerObject>.Default.Equals(inner_object, other.inner_object) &&
+                       EqualityComparer<ExternalObject>.Default.Equals(external_object, other.external_object) &&
+                       magic_enum_as_str == other.magic_enum_as_str &&
+                       magic_enum_as_int == other.magic_enum_as_int &&
+                       int_to_ignore == other.int_to_ignore;
+            }
+
+            public override int GetHashCode()
+            {
+                HashCode hash = new HashCode();
+                hash.Add(bool_value);
+                hash.Add(sbyte_value);
+                hash.Add(byte_value);
+                hash.Add(int16_value);
+                hash.Add(int32_value);
+                hash.Add(int64_value);
+                hash.Add(uint16_value);
+                hash.Add(uint32_value);
+                hash.Add(uint64_value);
+                hash.Add(float_value);
+                hash.Add(double_value);
+                hash.Add(decimal_value);
+                hash.Add(null_string_value);
+                hash.Add(single_string_value);
+                hash.Add(multi_string_value);
+                hash.Add(int32_array);
+                hash.Add(inner_object);
+                hash.Add(external_object);
+                hash.Add(magic_enum_as_str);
+                hash.Add(magic_enum_as_int);
+                hash.Add(int_to_ignore);
+                return hash.ToHashCode();
+            }
+
             public enum MagicEnum
             {
                 One,
@@ -194,9 +272,34 @@ namespace Storm.Tests
                 public bool bool_value;
                 public InternalObject internal_object;
 
+                public override bool Equals(object obj)
+                {
+                    return obj is InnerObject @object &&
+                           int_value == @object.int_value &&
+                           float_value == @object.float_value &&
+                           bool_value == @object.bool_value &&
+                           EqualityComparer<InternalObject>.Default.Equals(internal_object, @object.internal_object);
+                }
+
+                public override int GetHashCode()
+                {
+                    return HashCode.Combine(int_value, float_value, bool_value, internal_object);
+                }
+
                 public class InternalObject
                 {
                     public int int32_value;
+
+                    public override bool Equals(object obj)
+                    {
+                        return obj is InternalObject @object &&
+                               int32_value == @object.int32_value;
+                    }
+
+                    public override int GetHashCode()
+                    {
+                        return HashCode.Combine(int32_value);
+                    }
                 }
             }
 
@@ -208,12 +311,41 @@ namespace Storm.Tests
                 public InnerValue inner_value;
                 public string[] str_array;
 
+                public override bool Equals(object obj)
+                {
+                    return obj is ExternalObject other &&
+                           int16_value == other.int16_value &&
+                           int32_value == other.int32_value &&
+                           int64_value == other.int64_value &&
+                           Equals(inner_value, other.inner_value) &&
+                           (str_array == other.str_array || Enumerable.SequenceEqual(str_array, other.str_array));
+                }
+
+                public override int GetHashCode()
+                {
+                    return HashCode.Combine(int16_value, int32_value, int64_value, inner_value, str_array);
+                }
+
                 public class InnerValue
                 {
                     public short int16_value;
                     public int int32_value;
                     public long int64_value;
                     public ArrayElement[] obj_array;
+
+                    public override bool Equals(object obj)
+                    {
+                        return obj is InnerValue other &&
+                               int16_value == other.int16_value &&
+                               int32_value == other.int32_value &&
+                               int64_value == other.int64_value &&
+                               (obj_array == other.obj_array || Enumerable.SequenceEqual(obj_array, other.obj_array));
+                    }
+
+                    public override int GetHashCode()
+                    {
+                        return HashCode.Combine(int16_value, int32_value, int64_value, obj_array);
+                    }
 
                     public class ArrayElement
                     {
@@ -222,6 +354,19 @@ namespace Storm.Tests
 
                         public ArrayElement()
                         {
+
+                        }
+
+                        public override bool Equals(object obj)
+                        {
+                            return obj is ArrayElement element &&
+                                   bool_value == element.bool_value &&
+                                   dec_value == element.dec_value;
+                        }
+
+                        public override int GetHashCode()
+                        {
+                            return HashCode.Combine(bool_value, dec_value);
                         }
                     }
                 }

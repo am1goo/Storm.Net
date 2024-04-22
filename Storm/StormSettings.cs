@@ -21,15 +21,21 @@ namespace Storm
         private StormEnumFormat _defaultEnumFormat;
         public StormEnumFormat defaultEnumFormat => _defaultEnumFormat;
 
+        private string _numberDecimalSeparator;
+        public string numberDecimalSeparator => _numberDecimalSeparator;
+
         private int _intentSize;
         public int intentSize => _intentSize;
 
-        public StormSettings(Options options, List<IStormConverter> converters, Encoding encoding, StormEnumFormat defaultEnumFormat, int intentSize)
+        private Dictionary<int, string> _intentCache = new Dictionary<int, string>();
+
+        public StormSettings(Options options, List<IStormConverter> converters, Encoding encoding, StormEnumFormat defaultEnumFormat, string numberDecimalSeparator, int intentSize)
         {
             _options = options;
             _converters = converters;
             _encoding = encoding;
             _defaultEnumFormat = defaultEnumFormat;
+            _numberDecimalSeparator = numberDecimalSeparator;
             _intentSize = intentSize;
         }
 
@@ -37,11 +43,12 @@ namespace Storm
         {
             return new StormSettings
             (
-                options:            0,
-                converters:         null,
-                encoding:           Encoding.UTF8,
-                defaultEnumFormat:  StormEnumFormat.String,
-                intentSize:         2
+                options:                0,
+                converters:             null,
+                encoding:               Encoding.UTF8,
+                defaultEnumFormat:      StormEnumFormat.String,
+                numberDecimalSeparator: ",",
+                intentSize:             2
             );
         }
 
@@ -50,15 +57,14 @@ namespace Storm
             _cwd = cwd;
         }
 
-        private string _intent;
-        public string intent
+        public string GetIntent(int intents)
         {
-            get
+            if (!_intentCache.TryGetValue(intents, out var exist))
             {
-                if (_intent == null || _intent.Length != _intentSize)
-                    _intent = new string(' ', _intentSize);
-                return _intent;
+                exist = new string(' ', intents * _intentSize);
+                _intentCache.Add(intents, exist);
             }
+            return exist;
         }
 
         public enum Options
