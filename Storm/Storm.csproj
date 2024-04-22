@@ -18,6 +18,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>storm, strong, typed, inline, system, csharp, dotnet, text, serialization, deserialization, web, include</PackageTags>
 	<NoWarn>NU1901;NU1902;NU1903;NU1904</NoWarn>
+	<Version>1.0.1</Version>
   </PropertyGroup>
   
   <ItemGroup>
