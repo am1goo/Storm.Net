@@ -56,12 +56,18 @@ namespace Storm
                 if (pi.ShouldBeIgnored())
                     continue;
 
+                if (pi.IsPrivate() && !pi.ShouldBeIncluded())
+                    continue;
+
                 var fieldOrProperty = new StormFieldOrProperty(obj, pi);
                 cache.Add(fieldOrProperty);
             }
             foreach (var fi in fis)
             {
                 if (fi.ShouldBeIgnored())
+                    continue;
+
+                if (fi.IsPrivate && !fi.ShouldBeIncluded())
                     continue;
 
                 var fieldOrProperty = new StormFieldOrProperty(obj, fi);

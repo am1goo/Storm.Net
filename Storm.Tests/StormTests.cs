@@ -18,9 +18,11 @@ namespace Storm.Tests
             var original = new TestObject
             {
                 bool_value = true,
+                byte_value = (byte)random.Next(0, byte.MaxValue),
                 uint16_value = (ushort)random.Next(short.MinValue, short.MaxValue),
                 int32_value = random.Next(int.MinValue, int.MaxValue),
                 uint64_value = (ulong)random.Next(int.MinValue, int.MaxValue),
+                double_value = random.NextDouble(),
                 int32_array = new int[]
                 {
                     123, 13215, 5, 1345, 151, 24, 5, 12, 34123, 4, 1234
@@ -41,6 +43,9 @@ namespace Storm.Tests
                 },
                 external_object = new TestObject.ExternalObject
                 {
+                    int16_value = (short)random.Next(0, short.MaxValue),
+                    int32_value = random.Next(0, int.MaxValue),
+                    int64_value = (long)random.Next(0, int.MaxValue),
                     inner_value = new TestObject.ExternalObject.InnerValue
                     {
                          int16_value = (short)random.Next(short.MinValue, short.MaxValue),
@@ -70,6 +75,11 @@ namespace Storm.Tests
                 magic_enum_as_int = TestObject.MagicEnum.Three,
                 magic_enum_as_str = TestObject.MagicEnum.Five,
             };
+            original.sbyte_value_set((sbyte)random.Next(sbyte.MinValue, sbyte.MaxValue));
+            original.int16_value_set((short)random.Next(short.MinValue, short.MaxValue));
+            original.int64_value_set(random.Next(0, int.MaxValue));
+            original.float_value_set((float)random.NextDouble());
+            original.decimal_value_set(random.Next(0, int.MaxValue));
 
             var serializer = new StormSerializer();
             var serializeTask = serializer.SerializeAsync(original, settings);
@@ -115,17 +125,17 @@ namespace Storm.Tests
 
             var testObj = testStorm.Populate<TestObject>(settings);
             AreEqual(testObj.bool_value, testStorm[nameof(testObj.bool_value)]);
-            AreEqual(testObj.sbyte_value_func(), testStorm["sbyte_value"]);
+            AreEqual(testObj.sbyte_value_get(), testStorm["sbyte_value"]);
             AreEqual(testObj.byte_value, testStorm[nameof(testObj.byte_value)]);
-            AreEqual(testObj.int16_value_func(), testStorm["int16_value"]);
+            AreEqual(testObj.int16_value_get(), testStorm["int16_value"]);
             AreEqual(testObj.int32_value, testStorm[nameof(testObj.int32_value)]);
-            AreEqual(testObj.int64_value_func(), testStorm["int64_value"]);
+            AreEqual(testObj.int64_value_get(), testStorm["int64_value"]);
             AreEqual(testObj.uint16_value, testStorm[nameof(testObj.uint16_value)]);
-            AreEqual(testObj.uint32_value_func(), testStorm["uint32_value"]);
+            AreEqual(testObj.uint32_value_get(), testStorm["uint32_value"]);
             AreEqual(testObj.uint64_value, testStorm[nameof(testObj.uint64_value)]);
-            AreEqual(testObj.float_value_func(), testStorm["float_value"]);
+            AreEqual(testObj.float_value_get(), testStorm["float_value"]);
             AreEqual(testObj.double_value, testStorm[nameof(testObj.double_value)]);
-            AreEqual(testObj.decimal_value_func(), testStorm["decimal_value"]);
+            AreEqual(testObj.decimal_value_get(), testStorm["decimal_value"]);
             AreEqual(testObj.single_string_value, testStorm[nameof(testObj.single_string_value)]);
             AreEqual(testObj.multi_string_value, testStorm[nameof(testObj.multi_string_value)]);
             Assert.AreEqual(testObj.int_to_ignore, 0);
@@ -159,33 +169,45 @@ namespace Storm.Tests
         {
             public bool bool_value;
 
-            private sbyte sbyte_value;
-            public sbyte sbyte_value_func() => sbyte_value;
+            [StormInclude]
+            private sbyte sbyte_value { get; set; }
+            public sbyte sbyte_value_get() => sbyte_value;
+            public void sbyte_value_set(sbyte value) => sbyte_value = value;
 
-            public byte byte_value;
+            public byte byte_value { get; set; }
 
+            [StormInclude]
             private short int16_value;
-            public short int16_value_func() => int16_value;
+            public short int16_value_get() => int16_value;
+            public void int16_value_set(short value) => int16_value = value;
 
             public int int32_value;
 
+            [StormInclude]
             private long int64_value;
-            public long int64_value_func() => int64_value;
+            public long int64_value_get() => int64_value;
+            public void int64_value_set(long value) => int64_value = value;
 
             public ushort uint16_value;
 
+            [StormInclude]
             private uint uint32_value;
-            public uint uint32_value_func() => uint32_value;
+            public uint uint32_value_get() => uint32_value;
+            public void uint32_value_set(uint value) => uint32_value = value;
 
             public ulong uint64_value;
 
+            [StormInclude]
             private float float_value;
-            public float float_value_func() => float_value;
+            public float float_value_get() => float_value;
+            public void float_value_set(float value) => float_value = value;
 
             public double double_value;
 
+            [StormInclude]
             private decimal decimal_value;
-            public decimal decimal_value_func() => decimal_value;
+            public decimal decimal_value_get() => decimal_value;
+            public void decimal_value_set(decimal value) => decimal_value = value;
 
             public string null_string_value;
             public string single_string_value;

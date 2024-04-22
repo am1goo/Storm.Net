@@ -1,5 +1,6 @@
 ﻿using Storm.Attributes;
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
@@ -8,6 +9,17 @@ namespace Storm
 {
     public static class StormExtensions
     {
+        private static readonly Type[] _includeAttributes = new Type[]
+        {
+            typeof(StormIncludeAttribute),
+        };
+
+        private static readonly Type[] _ignoreAttributes = new Type[]
+        {
+            typeof(StormIgnoreAttribute),
+            typeof(IgnoreDataMemberAttribute),
+        };
+
         public static StringBuilder AppendKey(this StringBuilder sb, string key)
         {
             if (!string.IsNullOrEmpty(key))
@@ -20,25 +32,48 @@ namespace Storm
             return str.Contains("\r") || str.Contains("\n");
         }
 
+        public static bool IsPrivate(this PropertyInfo pi)
+        {
+            var getMethod = pi.GetMethod;
+            if (getMethod == null || getMethod.IsPrivate)
+                return true;
+
+            var setMethod = pi.SetMethod;
+            if (setMethod == null || setMethod.IsPrivate)
+                return true;
+
+            return false;
+        }
+
         public static bool ShouldBeIgnored(this PropertyInfo pi)
         {
-            return HasIgnoreAttributes(pi);
+            return HasAttributes(pi, _ignoreAttributes);
         }
 
         public static bool ShouldBeIgnored(this FieldInfo fi)
         {
-            return HasIgnoreAttributes(fi);
+            return HasAttributes(fi, _ignoreAttributes);
         }
 
-        public static bool HasIgnoreAttributes(MemberInfo mi)
+        public static bool ShouldBeIncluded(this PropertyInfo pi)
+        {
+            return HasAttributes(pi, _includeAttributes);
+        }
+
+        public static bool ShouldBeIncluded(this FieldInfo fi)
+        {
+            return HasAttributes(fi, _includeAttributes);
+        }
+
+        public static bool HasAttributes(MemberInfo mi, params Type[] types)
         { 
             foreach (var attr in mi.CustomAttributes)
             {
-                if (attr.AttributeType == typeof(StormIgnoreAttribute))
-                    return true;
-
-                if (attr.AttributeType == typeof(IgnoreDataMemberAttribute))
-                    return true;
+                foreach (var type in types)
+                {
+                    if (attr.AttributeType == type)
+                        return true;
+                }
             }
 
             return false;
