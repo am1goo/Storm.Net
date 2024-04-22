@@ -95,7 +95,7 @@ obj = {
 - Customization of deserialization process (you can add support to any your custom types!)
 
 ## Installation
-You can install NuGet packages into a .NET project.
+You can install NuGet package [am1goo.Storm.Net](https://www.nuget.org/packages/am1goo.Storm.Net/) into a .NET project.
 1. Open a command prompt and go to your's project folder
 2. Use the following command to install the Storm.Net package:
 ```dotnetcli
