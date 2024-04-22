@@ -131,9 +131,6 @@ public class Example
 }
 ```
 
-## Known limitations
-- Currently only deserialization is supported.
-
 ## Requirements
 - Visual Studio 2019 or higher
 - .NET App 2.0 or higher
