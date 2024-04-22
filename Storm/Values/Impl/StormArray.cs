@@ -26,7 +26,7 @@ namespace Storm
 
             const int expectedRank = 1;
             var actualRank = type.GetArrayRank();
-            if (actualRank != 1)
+            if (actualRank != expectedRank)
                 throw new Exception($"unsupported array rank, actual={actualRank}, expected={expectedRank}");
 
             if (!type.HasElementType)

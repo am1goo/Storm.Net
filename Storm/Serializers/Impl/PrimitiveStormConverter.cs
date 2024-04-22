@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Storm.Serializers
 {
-    public class PrimitiveStormConverter : IStormConverter
+    internal class PrimitiveStormConverter : IStormConverter
     {
         public static readonly PrimitiveStormConverter instance = new PrimitiveStormConverter();
 
@@ -32,6 +33,15 @@ namespace Storm.Serializers
             return _types.ContainsKey(type);
         }
 
+        public bool CanConvert(Type type)
+        {
+            var typeCode = Type.GetTypeCode(type);
+            if (!typeCode.TryToStormType(out var stormType))
+                return false;
+
+            return _postfixes.ContainsKey(stormType);
+        }
+
         public Task<IStormValue> DeserializeAsync(string type, string text, StormContext ctx)
         {
             var stormType = _types[type];
@@ -39,26 +49,79 @@ namespace Storm.Serializers
             return Task.FromResult<IStormValue>(obj);
         }
 
+        public Task<string> SerializeAsync(IStormVariable variable, object obj, StormContext ctx)
+        {
+            var objType = variable.type;
+            var objTypeCode = Type.GetTypeCode(objType);
+            var stormType = objTypeCode.ToStormType();
+            var type = _postfixes[stormType];
+
+            var key = variable.name;
+            switch (stormType)
+            {
+                case StormValue.Type.String:
+                    {
+                        if (obj == null)
+                        {
+                            var str = $"{key}:{type} =";
+                            return Task.FromResult(str);
+                        }
+
+                        var value = obj.ToString();
+                        if (value.IsMultiline())
+                        {
+                            var str = $"{key}:{type} = \"{value}\"";
+                            return Task.FromResult(str);
+                        }
+                        else
+                        {
+                            var str = $"{key}:{type} ={value}";
+                            return Task.FromResult(str);
+                        }
+                    }
+
+                case StormValue.Type.Single:
+                    {
+                        var value = ((float)obj).ToString(ctx.numberCultureInfo);
+                        var str = $"{key}:{type} = {value}";
+                        return Task.FromResult(str);
+                    }
+                case StormValue.Type.Double:
+                    {
+                        var value = ((double)obj).ToString(ctx.numberCultureInfo);
+                        var str = $"{key}:{type} = {value}";
+                        return Task.FromResult(str);
+                    }
+
+                default:
+                    {
+                        var value = obj.ToString();
+                        var str = $"{key}:{type} = {value}";
+                        return Task.FromResult(str);
+                    }
+            }
+        }
+
         private StormValue Parse(StormValue.Type type, string text, StormContext ctx)
-        { 
+        {
             var trimmed = text.Trim().ToLowerInvariant();
             switch (type)
             {
                 case StormValue.Type.Boolean:
                     var boolValue = default(bool);
-                    if (string.Equals(trimmed, "1", System.StringComparison.InvariantCultureIgnoreCase))
+                    if (string.Equals(trimmed, "1", StringComparison.InvariantCultureIgnoreCase))
                     {
                         boolValue = true;
                     }
-                    else if (string.Equals(trimmed, "yes", System.StringComparison.InvariantCultureIgnoreCase))
+                    else if (string.Equals(trimmed, "yes", StringComparison.InvariantCultureIgnoreCase))
                     {
                         boolValue = true;
                     }
-                    else if (string.Equals(trimmed, "0", System.StringComparison.InvariantCultureIgnoreCase))
+                    else if (string.Equals(trimmed, "0", StringComparison.InvariantCultureIgnoreCase))
                     {
                         boolValue = false;
                     }
-                    else if (string.Equals(trimmed, "no", System.StringComparison.InvariantCultureIgnoreCase))
+                    else if (string.Equals(trimmed, "no", StringComparison.InvariantCultureIgnoreCase))
                     {
                         boolValue = false;
                     }
@@ -101,11 +164,11 @@ namespace Storm.Serializers
                     return new StormValue(ulongValue);
 
                 case StormValue.Type.Single:
-                    var floatValue = float.Parse(trimmed, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat);
+                    var floatValue = float.Parse(trimmed, NumberStyles.Any, ctx.numberCultureInfo);
                     return new StormValue(floatValue);
 
                 case StormValue.Type.Double:
-                    var doubleValue = double.Parse(trimmed, NumberStyles.Any, CultureInfo.InvariantCulture.NumberFormat);
+                    var doubleValue = double.Parse(trimmed, NumberStyles.Any, ctx.numberCultureInfo);
                     return new StormValue(doubleValue);
 
                 case StormValue.Type.Decimal:
@@ -113,7 +176,14 @@ namespace Storm.Serializers
                     return new StormValue(decimalValue);
 
                 case StormValue.Type.String:
-                    return new StormValue(text);
+                    if (string.IsNullOrEmpty(text))
+                    {
+                        return new StormValue((string)null);
+                    }
+                    else
+                    {
+                        return new StormValue(text);
+                    }
 
                 case StormValue.Type.Null:
                     return StormValue.nil;

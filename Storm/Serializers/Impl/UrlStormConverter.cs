@@ -34,6 +34,11 @@ namespace Storm.Serializers
             return type.Equals("url", StringComparison.InvariantCultureIgnoreCase);
         }
 
+        public bool CanConvert(Type type)
+        {
+            return false;
+        }
+
         public async Task<IStormValue> DeserializeAsync(string type, string text, StormContext ctx)
         {
             if (!Uri.TryCreate(text, UriKind.RelativeOrAbsolute, out var uri))
@@ -43,6 +48,11 @@ namespace Storm.Serializers
                 return StormValue.nil;
 
             return await loader.DeserializeAsync(uri, ctx);
+        }
+
+        public Task<string> SerializeAsync(IStormVariable variable, object obj, StormContext ctx)
+        {
+            return Task.FromResult(string.Empty);
         }
     }
 }

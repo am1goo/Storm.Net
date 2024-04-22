@@ -49,28 +49,32 @@ namespace Storm
             var obj = Activator.CreateInstance(type);
             var pis = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty);
             var fis = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField | BindingFlags.SetField);
+
+            StormCache<List<StormFieldOrProperty>>.Pop(out var cache);
             foreach (var pi in pis)
             {
                 if (pi.ShouldBeIgnored())
                     continue;
 
-                if (TryGetValue(pi.Name, ignoreCase, pi.PropertyType, out var value))
-                {
-                    var fieldOrProperty = new StormFieldOrProperty(obj, pi);
-                    value.Populate(fieldOrProperty, settings);
-                }
+                var fieldOrProperty = new StormFieldOrProperty(obj, pi);
+                cache.Add(fieldOrProperty);
             }
             foreach (var fi in fis)
             {
                 if (fi.ShouldBeIgnored())
                     continue;
 
-                if (TryGetValue(fi.Name, ignoreCase, fi.FieldType, out var value))
+                var fieldOrProperty = new StormFieldOrProperty(obj, fi);
+                cache.Add(fieldOrProperty);
+            }
+            foreach (var variable in cache)
+            {
+                if (TryGetValue(variable.name, ignoreCase, variable.type, out var value))
                 {
-                    var fieldOrProperty = new StormFieldOrProperty(obj, fi);
-                    value.Populate(fieldOrProperty, settings);
+                    value.Populate(variable, settings);
                 }
             }
+            StormCache<List<StormFieldOrProperty>>.Push(cache);
             return obj;
         }
 
