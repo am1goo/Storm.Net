@@ -10,7 +10,7 @@
 It's easy to use and give to you unlimited power to control every field or property in your file.
 
 ## Why I made it?
-I have been work in video game industry at least 10 year and I've see how many errors was produced by regular game designers who works with `JSON` config files. Each error can produce bugs and our most large time-eaters - tasks in trackers! \
+I've worked in the video game industry at least 10 year and I've see how many errors was produced by a development team who works with `JSON` config files. Each error has chance to produce bugs and our most large time-eaters - tasks in trackers! \
 As you know, a lot of games used `JSON` format to declare game data and all of those files can be huge! \
 For example: [GTA 5 game config](https://nee.lv/2021/02/28/How-I-cut-GTA-Online-loading-times-by-70/) has **63k items** and **10mb size**! \
 And I've decided that it could be easy to modify if it will have some tips like type definitions.
