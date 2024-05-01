@@ -37,7 +37,7 @@ Value should be next after `=` equals sign.
 - `d` - double
 - `dec` - decimal
 - `t` - string
-- `e` - enums
+- `e` - enum
 - `url` - path to external file
 
 ## File association and format
@@ -76,8 +76,9 @@ obj_1 = {
 #also all array values can no have names
 array_1 = [
   :t = "first element"
-  :t = second element
-  :t = 3rd element
+  :t =second element
+  :t = "3rd element
+in two lines"
 ]
 
 #any inline objects should be mapped via type 'url'
@@ -107,6 +108,11 @@ dotnet add package am1goo.Storm.Net
   <PackageReference Include="am1goo.Storm.Net" Version="1.0.0" />
 </ItemGroup>
 ```
+
+## Roadmap
+- [X] Derialization from text or file
+- [X] Serialization to text or file
+- [ ] Simplified serialization/deserialization of built-in C# collection types (`List<T>`, `Queue<T>`, `HashSet<T>` and `Dictionary<KEY,VALUE>`)
     
 ## Example
 ```csharp
