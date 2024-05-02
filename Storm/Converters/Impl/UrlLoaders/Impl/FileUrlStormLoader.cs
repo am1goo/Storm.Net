@@ -2,7 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Storm.Serializers.Loaders
+namespace Storm.Converters.Loaders
 {
     public class FileUrlStormLoader : IUrlStormLoader
     {

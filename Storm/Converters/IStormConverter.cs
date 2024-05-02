@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Storm.Serializers
+namespace Storm.Converters
 {
     public interface IStormConverter
     {

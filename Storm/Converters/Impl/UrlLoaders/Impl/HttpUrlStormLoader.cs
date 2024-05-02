@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Reflection;
 
-namespace Storm.Serializers.Loaders
+namespace Storm.Converters.Loaders
 {
     public class HttpUrlStormLoader : IUrlStormLoader
     {

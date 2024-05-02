@@ -1,9 +1,10 @@
 ﻿using Storm.Attributes;
+using Storm.Serializers;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Storm.Serializers
+namespace Storm.Converters
 {
     internal class EnumStormConverter : IStormConverter
     {
