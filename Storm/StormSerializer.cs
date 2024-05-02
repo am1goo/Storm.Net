@@ -226,7 +226,7 @@ namespace Storm
             if (settings == null)
                 settings = StormSettings.Default();
 
-            settings.SetCwd(fileInfo.Directory.FullName);
+            settings.cwd = fileInfo.Directory.FullName;
             using (var fs = fileInfo.OpenRead())
             {
                 using (var sr = new StreamReader(fs, settings.encoding))

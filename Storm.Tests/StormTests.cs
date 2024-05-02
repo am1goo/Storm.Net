@@ -103,17 +103,13 @@ namespace Storm.Tests
         public void DeserializationTest()
         {
             var settings = new StormSettings
-            (
-                options:                StormSettings.Options.IgnoreCase,
-                converters:             new List<IStormConverter>
-                                        {
-                                            new UrlStormConverter(),
-                                        },
-                encoding:               System.Text.Encoding.UTF8,
-                defaultEnumFormat:      StormEnumFormat.String,
-                numberDecimalSeparator: ",",
-                intentSize:             2
-            );
+            {
+                options     = StormSettings.Options.IgnoreCase,
+                converters  = new List<IStormConverter>
+                {
+                    new UrlStormConverter(),
+                },
+            };
 
             var serializer = new StormSerializer();
             var task = serializer.DeserializeFileAsync("Examples/test-file.storm", settings);
