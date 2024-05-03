@@ -1,9 +1,9 @@
-﻿using Storm.Serializers.Loaders;
+﻿using Storm.Converters.Loaders;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Storm.Serializers
+namespace Storm.Converters
 {
     public class UrlStormConverter : IStormConverter
     {

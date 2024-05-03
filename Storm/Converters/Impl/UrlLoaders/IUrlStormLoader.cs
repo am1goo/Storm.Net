@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Storm.Serializers.Loaders
+namespace Storm.Converters.Loaders
 {
     public interface IUrlStormLoader
     {

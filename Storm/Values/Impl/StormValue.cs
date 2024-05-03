@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Storm
 {
@@ -17,6 +18,17 @@ namespace Storm
         private double _doubleValue;
         private decimal _decimalValue;
         private string _stringValue;
+
+        public bool TryGetEntry(string name, out IStormValue entry, bool ignoreCase)
+        {
+            entry = default;
+            return false;
+        }
+
+        public void GetEntries(List<IStormValue> entries)
+        {
+            //do nothing
+        }
 
         public StormValue(bool boolValue)
         {
@@ -171,7 +183,7 @@ namespace Storm
             return null;
         }
 
-        public void Populate(IStormVariable variable, StormSettings settings)
+        public void Populate(IStormVariable variable, StormContext ctx)
         {
             var value = GetValue();
             variable.SetValue(value);

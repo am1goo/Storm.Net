@@ -4,7 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Storm.Serializers
+namespace Storm.Converters
 {
     internal class PrimitiveStormConverter : IStormConverter
     {

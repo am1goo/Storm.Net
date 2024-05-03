@@ -1,4 +1,5 @@
-﻿using Storm.Serializers;
+﻿using Storm.Converters;
+using Storm.Serializers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,10 +15,13 @@ namespace Storm
         private const char Separator    = ':';
         private const char Equal        = '=';
         private const char Quote        = '"';
-        private const char BraceStart   = '{';
-        private const char BraceEnd     = '}';
-        private const char BracketStart = '[';
-        private const char BracketEnd   = ']';
+
+        private List<IStormSerializer> _serializers = new List<IStormSerializer>
+        {
+            ArrayStormSerializer.instance,
+            ListStormSerializer.instance,
+            ObjectStormSerializer.instance,
+        };
 
         private List<IStormConverter> _converters = new List<IStormConverter>
         {
@@ -116,41 +120,9 @@ namespace Storm
         internal async Task<string> SerializeAsync(IStormVariable variable, object obj, StormContext ctx)
         {
             var type = variable.type;
-            if (type.IsArray)
+            if (TryGetSerializer(type, ctx.settings, out var serializer))
             {
-                const int expectedRank = 1;
-                var actualRank = type.GetArrayRank();
-                if (actualRank != expectedRank)
-                    return null;
-
-                if (!type.HasElementType)
-                    return null;
-
-                var array = obj as Array;
-                if (array == null)
-                    return null;
-
-                var elementType = type.GetElementType();
-
-                StormCache<StringBuilder>.Pop(out var sb);
-                var intent = ctx.settings.GetIntent(ctx.intent);
-                sb.Append(intent).AppendKey(variable.name);
-                sb.Append(BracketStart).Append(Environment.NewLine);
-                ctx.intent++;
-                for (int i = 0; i < array.Length; ++i)
-                {
-                    var elementValue = array.GetValue(i);
-                    var elementVar = new StormArrayElement(elementType, array, i);
-                    var elementStr = await SerializeAsync(elementVar, elementValue, ctx);
-                    sb.Append(elementStr).Append(Environment.NewLine);
-                }
-                ctx.intent--;
-                sb.Append(intent).Append(BracketEnd);
-                var str = sb.ToString();
-                sb.Clear();
-                StormCache<StringBuilder>.Push(sb);
-
-                return str;
+                return await serializer.SerializeAsync(variable, obj, ctx);
             }
             else if (TryGetConverter(variable.type, ctx.settings, out var converter))
             {
@@ -166,38 +138,30 @@ namespace Storm
             }
             else
             {
-                ctx.intent++;
-                var storm = await SerializeAsync(type, obj, ctx);
-                ctx.intent--;
-                if (string.IsNullOrEmpty(storm))
-                    return null;
-
-                var intent = ctx.settings.GetIntent(ctx.intent);
-                ctx.intent++;
-                StormCache<StringBuilder>.Pop(out var sb);
-                sb.Append(intent).AppendKey(variable.name);
-                sb.Append(BraceStart).Append(Environment.NewLine);
-                sb.Append(storm);
-                sb.Append(intent).Append(BraceEnd);
-                var str = sb.ToString();
-                sb.Clear();
-                StormCache<StringBuilder>.Push(sb);
-                ctx.intent--;
-
-                return str;
+                return null;
             }
         }
 
         public async Task<T> DeserializeFileAsync<T>(string filePath, StormSettings settings = default)
         {
             var obj = await DeserializeFileAsync(filePath, settings);
-            return obj.Populate<T>(settings);
+
+            if (settings == null)
+                settings = StormSettings.Default();
+            var cwd = new FileInfo(filePath).Directory.FullName;
+            var ctx = new StormContext(this, settings, cwd);
+            return obj.Populate<T>(ctx);
         }
 
         public async Task<object> DeserializeFileAsync(Type type, string filePath, StormSettings settings = default)
         {
             var obj = await DeserializeFileAsync(filePath, settings);
-            return obj.Populate(type, settings);
+
+            if (settings == null)
+                settings = StormSettings.Default();
+            var cwd = new FileInfo(filePath).Directory.FullName;
+            var ctx = new StormContext(this, settings, cwd);
+            return obj.Populate(type, ctx);
         }
 
         public Task<StormObject> DeserializeFileAsync(string filePath, StormSettings settings = default)
@@ -209,13 +173,23 @@ namespace Storm
         public async Task<T> DeserializeFileAsync<T>(FileInfo fileInfo, StormSettings settings = default)
         {
             var obj = await DeserializeFileAsync(fileInfo, settings);
-            return obj.Populate<T>(settings);
+
+            if (settings == null)
+                settings = StormSettings.Default();
+            var cwd = fileInfo.Directory.FullName;
+            var ctx = new StormContext(this, settings, cwd);
+            return obj.Populate<T>(ctx);
         }
 
         public async Task<object> DeserializeFileAsync(Type type, FileInfo fileInfo, StormSettings settings = default)
         {
             var obj = await DeserializeFileAsync(fileInfo, settings);
-            return obj.Populate(type, settings);
+
+            if (settings == null)
+                settings = StormSettings.Default();
+            var cwd = fileInfo.Directory.FullName;
+            var ctx = new StormContext(this, settings, cwd);
+            return obj.Populate(type, ctx);
         }
 
         public async Task<StormObject> DeserializeFileAsync(FileInfo fileInfo, StormSettings settings = default)
@@ -237,16 +211,24 @@ namespace Storm
             }
         }
 
-        public async Task<T> DeserializeAsync<T>(string storm, StormSettings settings)
+        public async Task<T> DeserializeAsync<T>(string storm, StormSettings settings = default)
         {
             var obj = await DeserializeAsync(storm, settings);
-            return obj.Populate<T>(settings);
+
+            if (settings == null)
+                settings = StormSettings.Default();
+            var ctx = new StormContext(this, settings, cwd: null);
+            return obj.Populate<T>(ctx);
         }
 
-        public async Task<object> DeserializeAsync(Type type, string storm, StormSettings settings)
+        public async Task<object> DeserializeAsync(Type type, string storm, StormSettings settings = default)
         {
             var obj = await DeserializeAsync(storm, settings);
-            return obj.Populate(type, settings);
+
+            if (settings == null)
+                settings = StormSettings.Default();
+            var ctx = new StormContext(this, settings, cwd: null);
+            return obj.Populate(type, ctx);
         }
 
         public Task<StormObject> DeserializeAsync(string storm, StormSettings settings)
@@ -282,16 +264,14 @@ namespace Storm
                 var separatorIndex = line.IndexOf(Separator);
                 if (separatorIndex < 0)
                 {
-                    if (TryParseObject(ref i, lines, out var key, out var value))
+                    foreach (var serializer in _serializers)
                     {
-                        var stormObject = await DeserializeAsync(value, ctx);
-                        obj.Add(key, stormObject);
-                    }
-                    else if (TryParseArray(ref i, lines, out key, out value))
-                    {
-                        var stormArray = new StormArray();
-                        stormArray = await DeserializeAsync(stormArray, value, ctx);
-                        obj.Add(key, stormArray);
+                        if (serializer.TryParse(ref i, lines, out var key, out var text))
+                        {
+                            var value = await serializer.DeserializeAsync(text, ctx);
+                            obj.Add(key, value);
+                            break;
+                        }
                     }
                 }
                 else
@@ -312,17 +292,7 @@ namespace Storm
             return obj;
         }
 
-        private bool TryParseArray(ref int index, string[] lines, out string key, out string value)
-        {
-            return TryParseText(ref index, lines, BracketStart, BracketEnd, out key, out value);
-        }
-
-        private bool TryParseObject(ref int index, string[] lines, out string key, out string value)
-        {
-            return TryParseText(ref index, lines, BraceStart, BraceEnd, out key, out value);
-        }
-
-        private bool TryParseText(ref int index, string[] lines, char charFrom, char charTo, out string key, out string value)
+        public static bool TryParseText(ref int index, string[] lines, char charFrom, char charTo, out string key, out string value)
         {
             var line = lines[index];
             var equalIndex = line.IndexOf(Equal);
@@ -526,7 +496,39 @@ namespace Storm
             return true;
         }
 
-        private bool TryGetConverter(string type, StormSettings settings, out IStormConverter result)
+        internal bool TryGetSerializer(Type type, StormSettings settings, out IStormSerializer result)
+        {
+            if (TryGetSerializer(_serializers, type, out result))
+                return true;
+
+            if (TryGetSerializer(settings.serializers, type, out result))
+                return true;
+
+            return false;
+        }
+
+        private bool TryGetSerializer(IEnumerable<IStormSerializer> list, Type type, out IStormSerializer result)
+        {
+            if (list == null)
+            {
+                result = default;
+                return false;
+            }
+
+            foreach (var converter in list)
+            {
+                if (converter.CanConvert(type))
+                {
+                    result = converter;
+                    return true;
+                }
+            }
+
+            result = default;
+            return false;
+        }
+
+        internal bool TryGetConverter(string type, StormSettings settings, out IStormConverter result)
         {
             if (TryGetConverter(_converters, type, out result))
                 return true;
@@ -537,7 +539,7 @@ namespace Storm
             return false;
         }
 
-        private bool TryGetConverter(Type type, StormSettings settings, out IStormConverter result)
+        internal bool TryGetConverter(Type type, StormSettings settings, out IStormConverter result)
         {
             if (TryGetConverter(_converters, type, out result))
                 return true;

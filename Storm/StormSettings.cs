@@ -1,4 +1,5 @@
-﻿using Storm.Serializers;
+﻿using Storm.Converters;
+using Storm.Serializers;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,13 +7,14 @@ namespace Storm
 {
     public class StormSettings
     {
-        public Options options                          = 0;
-        public string cwd                               = null;
-        public IEnumerable<IStormConverter> converters  = null;
-        public Encoding encoding                        = Encoding.UTF8;
-        public StormEnumFormat defaultEnumFormat        = StormEnumFormat.String;
-        public string numberDecimalSeparator            = ",";
-        public int intentSize                           = 2;
+        public Options options                              = 0;
+        public string cwd                                   = null;
+        public IEnumerable<IStormSerializer> serializers    = null;
+        public IEnumerable<IStormConverter> converters      = null;
+        public Encoding encoding                            = Encoding.UTF8;
+        public StormEnumFormat defaultEnumFormat            = StormEnumFormat.String;
+        public string numberDecimalSeparator                = ",";
+        public int intentSize                               = 2;
 
         private Dictionary<int, string> _intentCache = new Dictionary<int, string>();
 
