@@ -112,7 +112,11 @@ dotnet add package am1goo.Storm.Net
 ## Roadmap
 - [X] Derialization from text or file
 - [X] Serialization to text or file
-- [ ] Simplified serialization/deserialization of built-in C# collection types (`List<T>`, `Queue<T>`, `HashSet<T>` and `Dictionary<KEY,VALUE>`)
+- [ ] Simplified serialization/deserialization of built-in C# collection types:
+  - [X] `List<T>`
+  - [ ] `Queue<T>`
+  - [ ] `HashSet<T>`
+  - [ ] `Dictionary<KEY,VALUE>`
     
 ## Example
 ```csharp
