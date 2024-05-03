@@ -1,5 +1,4 @@
-﻿using Storm.Serializers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -12,6 +11,12 @@ namespace Storm
         public StormArray()
         {
             _entries = new List<IStormValue>();
+        }
+
+        public bool TryGetEntry(string name, out IStormValue entry, bool ignoreCase)
+        {
+            entry = default;
+            return false;
         }
 
         public void GetEntries(List<IStormValue> result)

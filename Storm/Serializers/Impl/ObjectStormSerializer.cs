@@ -62,7 +62,7 @@ namespace Storm.Serializers
             }
             foreach (var var in cache)
             {
-                if (TryGetValue(var.name, ignoreCase, value as StormObject, out var varValue))
+                if (value.TryGetEntry(var.name, out var varValue, ignoreCase))
                 {
                     varValue.Populate(var, ctx);
                 }
@@ -100,46 +100,6 @@ namespace Storm.Serializers
             ctx.intent--;
 
             return str;
-        }
-
-        private bool TryGetValue(string key, bool ignoreCase, StormObject obj, out IStormValue result)
-        {
-            if (ignoreCase)
-            {
-                var exist = default(IStormValue);
-                foreach (var entryKey in obj.entries.Keys)
-                {
-                    if (key.Equals(entryKey, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        exist = obj.entries[entryKey];
-                        break;
-                    }
-                }
-
-                if (exist != null)
-                {
-                    result = exist;
-                    return true;
-                }
-                else
-                {
-                    result = default;
-                    return false;
-                }
-            }
-            else
-            {
-                if (obj.entries.TryGetValue(key, out var exist))
-                {
-                    result = exist;
-                    return true;
-                }
-                else
-                {
-                    result = default;
-                    return false;
-                }
-            }
         }
     }
 }

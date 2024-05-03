@@ -19,6 +19,12 @@ namespace Storm
         private decimal _decimalValue;
         private string _stringValue;
 
+        public bool TryGetEntry(string name, out IStormValue entry, bool ignoreCase)
+        {
+            entry = default;
+            return false;
+        }
+
         public void GetEntries(List<IStormValue> entries)
         {
             //do nothing

@@ -12,6 +12,12 @@ namespace Storm
             _text = text;
         }
 
+        public bool TryGetEntry(string name, out IStormValue entry, bool ignoreCase)
+        {
+            entry = default;
+            return false;
+        }
+
         public void GetEntries(List<IStormValue> entries)
         {
             //do nothing

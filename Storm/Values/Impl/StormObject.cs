@@ -7,7 +7,11 @@ namespace Storm
     public class StormObject : IStormValue, IStormContainer
     {
         private Dictionary<string, IStormValue> _entries;
-        public IReadOnlyDictionary<string, IStormValue> entries => _entries;
+
+        public StormObject()
+        {
+            _entries = new Dictionary<string, IStormValue>();
+        }
 
         public IStormValue this[string key]
         {
@@ -17,9 +21,44 @@ namespace Storm
             }
         }
 
-        public StormObject()
+        public bool TryGetEntry(string key, out IStormValue result, bool ignoreCase)
         {
-            _entries = new Dictionary<string, IStormValue>();
+            if (ignoreCase)
+            {
+                var exist = default(IStormValue);
+                foreach (var entryKey in _entries.Keys)
+                {
+                    if (key.Equals(entryKey, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        exist = _entries[entryKey];
+                        break;
+                    }
+                }
+
+                if (exist != null)
+                {
+                    result = exist;
+                    return true;
+                }
+                else
+                {
+                    result = default;
+                    return false;
+                }
+            }
+            else
+            {
+                if (_entries.TryGetValue(key, out var exist))
+                {
+                    result = exist;
+                    return true;
+                }
+                else
+                {
+                    result = default;
+                    return false;
+                }
+            }
         }
 
         public void GetEntries(List<IStormValue> result)

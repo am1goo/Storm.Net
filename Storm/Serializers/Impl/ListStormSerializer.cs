@@ -10,7 +10,7 @@ namespace Storm.Serializers
     public class ListStormSerializer : IStormSerializer
     {
         private const char BracketStart = '[';
-        private const char BracketEnd = ']';
+        private const char BracketEnd   = ']';
 
         public static readonly ListStormSerializer instance = new ListStormSerializer();
 
