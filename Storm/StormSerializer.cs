@@ -18,8 +18,9 @@ namespace Storm
 
         private List<IStormSerializer> _serializers = new List<IStormSerializer>
         {
-            ObjectStormSerializer.instance,
             ArrayStormSerializer.instance,
+            ListStormSerializer.instance,
+            ObjectStormSerializer.instance,
         };
 
         private List<IStormConverter> _converters = new List<IStormConverter>
@@ -144,13 +145,23 @@ namespace Storm
         public async Task<T> DeserializeFileAsync<T>(string filePath, StormSettings settings = default)
         {
             var obj = await DeserializeFileAsync(filePath, settings);
-            return obj.Populate<T>(settings);
+
+            if (settings == null)
+                settings = StormSettings.Default();
+            var cwd = new FileInfo(filePath).Directory.FullName;
+            var ctx = new StormContext(this, settings, cwd);
+            return obj.Populate<T>(ctx);
         }
 
         public async Task<object> DeserializeFileAsync(Type type, string filePath, StormSettings settings = default)
         {
             var obj = await DeserializeFileAsync(filePath, settings);
-            return obj.Populate(type, settings);
+
+            if (settings == null)
+                settings = StormSettings.Default();
+            var cwd = new FileInfo(filePath).Directory.FullName;
+            var ctx = new StormContext(this, settings, cwd);
+            return obj.Populate(type, ctx);
         }
 
         public Task<StormObject> DeserializeFileAsync(string filePath, StormSettings settings = default)
@@ -162,13 +173,23 @@ namespace Storm
         public async Task<T> DeserializeFileAsync<T>(FileInfo fileInfo, StormSettings settings = default)
         {
             var obj = await DeserializeFileAsync(fileInfo, settings);
-            return obj.Populate<T>(settings);
+
+            if (settings == null)
+                settings = StormSettings.Default();
+            var cwd = fileInfo.Directory.FullName;
+            var ctx = new StormContext(this, settings, cwd);
+            return obj.Populate<T>(ctx);
         }
 
         public async Task<object> DeserializeFileAsync(Type type, FileInfo fileInfo, StormSettings settings = default)
         {
             var obj = await DeserializeFileAsync(fileInfo, settings);
-            return obj.Populate(type, settings);
+
+            if (settings == null)
+                settings = StormSettings.Default();
+            var cwd = fileInfo.Directory.FullName;
+            var ctx = new StormContext(this, settings, cwd);
+            return obj.Populate(type, ctx);
         }
 
         public async Task<StormObject> DeserializeFileAsync(FileInfo fileInfo, StormSettings settings = default)
@@ -190,16 +211,24 @@ namespace Storm
             }
         }
 
-        public async Task<T> DeserializeAsync<T>(string storm, StormSettings settings)
+        public async Task<T> DeserializeAsync<T>(string storm, StormSettings settings = default)
         {
             var obj = await DeserializeAsync(storm, settings);
-            return obj.Populate<T>(settings);
+
+            if (settings == null)
+                settings = StormSettings.Default();
+            var ctx = new StormContext(this, settings, cwd: null);
+            return obj.Populate<T>(ctx);
         }
 
-        public async Task<object> DeserializeAsync(Type type, string storm, StormSettings settings)
+        public async Task<object> DeserializeAsync(Type type, string storm, StormSettings settings = default)
         {
             var obj = await DeserializeAsync(storm, settings);
-            return obj.Populate(type, settings);
+
+            if (settings == null)
+                settings = StormSettings.Default();
+            var ctx = new StormContext(this, settings, cwd: null);
+            return obj.Populate(type, ctx);
         }
 
         public Task<StormObject> DeserializeAsync(string storm, StormSettings settings)
@@ -467,7 +496,7 @@ namespace Storm
             return true;
         }
 
-        private bool TryGetSerializer(Type type, StormSettings settings, out IStormSerializer result)
+        internal bool TryGetSerializer(Type type, StormSettings settings, out IStormSerializer result)
         {
             if (TryGetSerializer(_serializers, type, out result))
                 return true;
@@ -499,7 +528,7 @@ namespace Storm
             return false;
         }
 
-        private bool TryGetConverter(string type, StormSettings settings, out IStormConverter result)
+        internal bool TryGetConverter(string type, StormSettings settings, out IStormConverter result)
         {
             if (TryGetConverter(_converters, type, out result))
                 return true;
@@ -510,7 +539,7 @@ namespace Storm
             return false;
         }
 
-        private bool TryGetConverter(Type type, StormSettings settings, out IStormConverter result)
+        internal bool TryGetConverter(Type type, StormSettings settings, out IStormConverter result)
         {
             if (TryGetConverter(_converters, type, out result))
                 return true;

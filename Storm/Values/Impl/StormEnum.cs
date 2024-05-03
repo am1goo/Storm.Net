@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Storm
 {
@@ -11,7 +12,12 @@ namespace Storm
             _text = text;
         }
 
-        public void Populate(IStormVariable variable, StormSettings settings)
+        public void GetEntries(List<IStormValue> entries)
+        {
+            //do nothing
+        }
+
+        public void Populate(IStormVariable variable, StormContext ctx)
         {
             var type = variable.type;
             if (!type.IsEnum)

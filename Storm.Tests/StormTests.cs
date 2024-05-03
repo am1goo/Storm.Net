@@ -28,6 +28,10 @@ namespace Storm.Tests
                 {
                     123, 13215, 5, 1345, 151, 24, 5, 12, 34123, 4, 1234
                 },
+                uint64_list = new List<ulong>()
+                {
+                    1234, 3210, 2134, 21341, 34123, 8943891268932
+                },
                 null_string_value = null,
                 single_string_value = "sadassjghadsfklahgjklahsd",
                 multi_string_value = "ad ad ad a d\nasd asd askfaj dsf \n asd sad ",
@@ -120,7 +124,8 @@ namespace Storm.Tests
 
             var testStorm = task.Result;
 
-            var testObj = testStorm.Populate<TestObject>(settings);
+            var ctx = new StormContext(serializer, settings, null);
+            var testObj = testStorm.Populate<TestObject>(ctx);
             AreEqual(testObj.bool_value, testStorm[nameof(testObj.bool_value)]);
             AreEqual(testObj.sbyte_value_get(), testStorm["sbyte_value"]);
             AreEqual(testObj.byte_value, testStorm[nameof(testObj.byte_value)]);
@@ -211,6 +216,7 @@ namespace Storm.Tests
             public string multi_string_value;
 
             public int[] int32_array;
+            public List<ulong> uint64_list;
 
             public InnerObject inner_object;
             public ExternalObject external_object;
@@ -242,6 +248,7 @@ namespace Storm.Tests
                        single_string_value == other.single_string_value &&
                        multi_string_value == other.multi_string_value &&
                        Enumerable.SequenceEqual(int32_array, other.int32_array) &&
+                       Enumerable.SequenceEqual(uint64_list, other.uint64_list) &&
                        EqualityComparer<InnerObject>.Default.Equals(inner_object, other.inner_object) &&
                        EqualityComparer<ExternalObject>.Default.Equals(external_object, other.external_object) &&
                        magic_enum_as_str == other.magic_enum_as_str &&
@@ -268,6 +275,7 @@ namespace Storm.Tests
                 hash.Add(single_string_value);
                 hash.Add(multi_string_value);
                 hash.Add(int32_array);
+                hash.Add(uint64_list);
                 hash.Add(inner_object);
                 hash.Add(external_object);
                 hash.Add(magic_enum_as_str);

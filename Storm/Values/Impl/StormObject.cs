@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Text;
 
 namespace Storm
@@ -8,6 +7,7 @@ namespace Storm
     public class StormObject : IStormValue, IStormContainer
     {
         private Dictionary<string, IStormValue> _entries;
+        public IReadOnlyDictionary<string, IStormValue> entries => _entries;
 
         public IStormValue this[string key]
         {
@@ -22,106 +22,40 @@ namespace Storm
             _entries = new Dictionary<string, IStormValue>();
         }
 
+        public void GetEntries(List<IStormValue> result)
+        {
+            foreach (var entry in _entries.Values)
+            {
+                result.Add(entry);
+            }
+        }
+
         void IStormContainer.Add(string key, IStormValue value)
         {
             _entries.Add(key, value);
         }
 
-        public void Populate(IStormVariable variable, StormSettings settings)
-        {
-            var value = Populate(variable.type, settings);
-            variable.SetValue(value);
-        }
-
-        public T Populate<T>(StormSettings settings = default)
+        public T Populate<T>(StormContext ctx)
         {
             var type = typeof(T);
-            return (T)Populate(type, settings);
+            return (T)Populate(type, ctx);
         }
 
-        public object Populate(Type type, StormSettings settings)
+        public object Populate(Type type, StormContext ctx)
         {
-            if (settings == null)
-                settings = StormSettings.Default();
-
-            var ignoreCase = settings.options.HasFlag(StormSettings.Options.IgnoreCase);
-
-            var obj = Activator.CreateInstance(type);
-            var pis = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty);
-            var fis = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField | BindingFlags.SetField);
-
-            StormCache<List<StormFieldOrProperty>>.Pop(out var cache);
-            foreach (var pi in pis)
-            {
-                if (pi.ShouldBeIgnored())
-                    continue;
-
-                if (pi.IsPrivate() && !pi.ShouldBeIncluded())
-                    continue;
-
-                var fieldOrProperty = new StormFieldOrProperty(obj, pi);
-                cache.Add(fieldOrProperty);
-            }
-            foreach (var fi in fis)
-            {
-                if (fi.ShouldBeIgnored())
-                    continue;
-
-                if (fi.IsPrivate && !fi.ShouldBeIncluded())
-                    continue;
-
-                var fieldOrProperty = new StormFieldOrProperty(obj, fi);
-                cache.Add(fieldOrProperty);
-            }
-            foreach (var variable in cache)
-            {
-                if (TryGetValue(variable.name, ignoreCase, variable.type, out var value))
-                {
-                    value.Populate(variable, settings);
-                }
-            }
-            StormCache<List<StormFieldOrProperty>>.Push(cache);
-            return obj;
+            var variable = new StormTransient(type);
+            Populate(variable, ctx);
+            return variable.value;
         }
 
-        private bool TryGetValue(string key, bool ignoreCase, Type type, out IStormValue result)
+        public void Populate(IStormVariable variable, StormContext ctx)
         {
-            if (ignoreCase)
-            {
-                var exist = default(IStormValue);
-                foreach (var entryKey in _entries.Keys)
-                {
-                    if (key.Equals(entryKey, StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        exist = _entries[entryKey];
-                        break;
-                    }
-                }
+            var type = variable.type;
 
-                if (exist != null)
-                {
-                    result = exist;
-                    return true;
-                }
-                else
-                {
-                    result = default;
-                    return false;
-                }
-            }
-            else
-            {
-                if (_entries.TryGetValue(key, out var exist))
-                {
-                    result = exist;
-                    return true;
-                }
-                else
-                {
-                    result = default;
-                    return false;
-                }
-            }
+            if (!ctx.serializer.TryGetSerializer(type, ctx.settings, out var serializer))
+                throw new Exception($"serializer not found for type {type}");
+
+            serializer.Populate(variable, this, ctx);
         }
 
         private static int _toStringIntent = 0;
