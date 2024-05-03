@@ -40,7 +40,7 @@ namespace Storm.Serializers
             for (int i = 0; i < elementCount; ++i)
             {
                 var entry = cache[i];
-                var elementVar = new StormListElement(elementType, list, i);
+                var elementVar = new ElementVariable(elementType, list, i);
                 entry.Populate(elementVar, ctx);
             }
             StormCache<List<IStormValue>>.Push(cache);
@@ -74,7 +74,7 @@ namespace Storm.Serializers
             for (int i = 0; i < count; ++i)
             {
                 var elementValue = itemMethod.GetValue(obj, new object[] { i });
-                var elementVar = new StormListElement(elementType, list, i);
+                var elementVar = new ElementVariable(elementType, list, i);
                 var elementStr = await ctx.serializer.SerializeAsync(elementVar, elementValue, ctx);
                 sb.Append(elementStr).Append(Environment.NewLine);
             }
@@ -85,6 +85,36 @@ namespace Storm.Serializers
             StormCache<StringBuilder>.Push(sb);
 
             return str;
+        }
+
+        private struct ElementVariable : IStormVariable
+        {
+            private string _name;
+            public string name => _name;
+
+            private Type _type;
+            public Type type => _type;
+
+            private IList _list;
+            private int _index;
+
+            public ElementVariable(Type type, IList list, int index)
+            {
+                _name = string.Empty;
+                _type = type;
+                _list = list;
+                _index = index;
+            }
+
+            public void GetAttributes(List<Attribute> result)
+            {
+                //do nothing
+            }
+
+            public void SetValue(object value)
+            {
+                _list.Insert(_index, value);
+            }
         }
     }
 }
