@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Storm.Serializers
 {
-    public class ArrayStormSerializer : IStormSerializer
+    internal class ArrayStormSerializer : IStormSerializer
     {
         private const char BracketStart = '[';
         private const char BracketEnd   = ']';

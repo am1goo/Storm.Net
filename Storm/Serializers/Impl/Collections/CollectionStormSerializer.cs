@@ -7,18 +7,25 @@ using System.Threading.Tasks;
 
 namespace Storm.Serializers
 {
-    public class ListStormSerializer : IStormSerializer
+    internal abstract class CollectionStormSerializer : IStormSerializer
     {
         private const char BracketStart = '[';
         private const char BracketEnd   = ']';
 
-        public static readonly ListStormSerializer instance = new ListStormSerializer();
+        protected abstract Type collectionType { get; }
 
-        private static readonly Type _type = typeof(List<>);
+        protected virtual MethodInfo GetInsertMethod(Type type)
+        {
+            return type.GetMethod("Add", BindingFlags.Public | BindingFlags.Instance);
+        }
 
         public bool CanConvert(Type type)
         {
-            return type.IsGenericType && _type.IsAssignableFrom(type.GetGenericTypeDefinition());
+            if (!type.IsGenericType)
+                return false;
+
+            var typeDef = type.GetGenericTypeDefinition();
+            return collectionType.IsAssignableFrom(typeDef);
         }
 
         public bool TryParse(ref int index, string[] lines, out string key, out string text)
@@ -32,7 +39,9 @@ namespace Storm.Serializers
 
             var elementType = type.GetGenericArguments()[0];
 
-            var list = (IList)Activator.CreateInstance(type);
+            var insertMethod = GetInsertMethod(type);
+
+            var collection = Activator.CreateInstance(type);
 
             StormCache<List<IStormValue>>.Pop(out var cache);
             value.GetEntries(cache);
@@ -40,12 +49,12 @@ namespace Storm.Serializers
             for (int i = 0; i < elementCount; ++i)
             {
                 var entry = cache[i];
-                var elementVar = new ElementVariable(elementType, list, i);
+                var elementVar = new ElementVariable(elementType, collection, insertMethod);
                 entry.Populate(elementVar, ctx);
             }
             StormCache<List<IStormValue>>.Push(cache);
 
-            variable.SetValue(list);
+            variable.SetValue(collection);
         }
 
         public async Task<IStormValue> DeserializeAsync(string text, StormContext ctx)
@@ -57,15 +66,12 @@ namespace Storm.Serializers
 
         public async Task<string> SerializeAsync(IStormVariable variable, object obj, StormContext ctx)
         {
-            var list = (IList)obj;
-            if (list == null)
+            var collection = (IEnumerable)obj;
+            if (collection == null)
                 return null;
 
             var type = variable.type;
             var elementType = type.GetGenericArguments()[0];
-
-            var countMethod = type.GetProperty("Count", BindingFlags.Public | BindingFlags.Instance);
-            var itemMethod = type.GetProperty("Item", BindingFlags.Public | BindingFlags.Instance);
 
             StormCache<StringBuilder>.Pop(out var sb);
             var intent = ctx.settings.GetIntent(ctx.intent);
@@ -73,11 +79,9 @@ namespace Storm.Serializers
             sb.Append(BracketStart).Append(Environment.NewLine);
             ctx.intent++;
 
-            var count = (int)countMethod.GetValue(obj, null);
-            for (int i = 0; i < count; ++i)
+            foreach (var elementValue in collection)
             {
-                var elementValue = itemMethod.GetValue(obj, new object[] { i });
-                var elementVar = new ElementVariable(elementType, list, i);
+                var elementVar = new ElementVariable(elementType, obj, null);
                 var elementStr = await ctx.serializer.SerializeAsync(elementVar, elementValue, ctx);
                 sb.Append(elementStr).Append(Environment.NewLine);
             }
@@ -98,15 +102,15 @@ namespace Storm.Serializers
             private Type _type;
             public Type type => _type;
 
-            private IList _list;
-            private int _index;
+            private object _collection;
+            private MethodInfo _insertMethod;
 
-            public ElementVariable(Type type, IList list, int index)
+            public ElementVariable(Type type, object collection, MethodInfo insertMethod)
             {
                 _name = string.Empty;
                 _type = type;
-                _list = list;
-                _index = index;
+                _collection = collection;
+                _insertMethod = insertMethod;
             }
 
             public void GetAttributes(List<Attribute> result)
@@ -116,7 +120,7 @@ namespace Storm.Serializers
 
             public void SetValue(object value)
             {
-                _list.Insert(_index, value);
+                _insertMethod.Invoke(_collection, new object[] { value });
             }
         }
     }

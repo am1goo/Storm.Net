@@ -20,6 +20,8 @@ namespace Storm
         {
             ArrayStormSerializer.instance,
             ListStormSerializer.instance,
+            HashSetStormSerializer.instance,
+            QueueStormSerializer.instance,
             ObjectStormSerializer.instance,
         };
 

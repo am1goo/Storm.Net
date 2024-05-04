@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Storm.Serializers
 {
-    public class ObjectStormSerializer : IStormSerializer
+    internal class ObjectStormSerializer : IStormSerializer
     {
         public static readonly ObjectStormSerializer instance = new ObjectStormSerializer();
 
