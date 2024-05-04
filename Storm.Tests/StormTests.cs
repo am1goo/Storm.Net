@@ -218,6 +218,9 @@ namespace Storm.Tests
             public int[] int32_array;
             public List<ulong> uint64_list;
 
+            public uint[] null_array;
+            public List<long> null_list;
+
             public InnerObject inner_object;
             public ExternalObject external_object;
 
@@ -247,8 +250,10 @@ namespace Storm.Tests
                        null_string_value == other.null_string_value &&
                        single_string_value == other.single_string_value &&
                        multi_string_value == other.multi_string_value &&
-                       Enumerable.SequenceEqual(int32_array, other.int32_array) &&
-                       Enumerable.SequenceEqual(uint64_list, other.uint64_list) &&
+                       (int32_array == other.int32_array || Enumerable.SequenceEqual(int32_array, other.int32_array)) &&
+                       (uint64_list == other.uint64_list || Enumerable.SequenceEqual(uint64_list, other.uint64_list)) &&
+                       (null_array == other.null_array || Enumerable.SequenceEqual(null_array, other.null_array)) &&
+                       (null_list == other.null_list || Enumerable.SequenceEqual(null_list, other.null_list)) &&
                        EqualityComparer<InnerObject>.Default.Equals(inner_object, other.inner_object) &&
                        EqualityComparer<ExternalObject>.Default.Equals(external_object, other.external_object) &&
                        magic_enum_as_str == other.magic_enum_as_str &&
@@ -276,6 +281,8 @@ namespace Storm.Tests
                 hash.Add(multi_string_value);
                 hash.Add(int32_array);
                 hash.Add(uint64_list);
+                hash.Add(null_array);
+                hash.Add(null_list);
                 hash.Add(inner_object);
                 hash.Add(external_object);
                 hash.Add(magic_enum_as_str);

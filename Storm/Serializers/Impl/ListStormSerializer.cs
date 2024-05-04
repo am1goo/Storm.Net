@@ -57,8 +57,11 @@ namespace Storm.Serializers
 
         public async Task<string> SerializeAsync(IStormVariable variable, object obj, StormContext ctx)
         {
-            var type = variable.type;
             var list = (IList)obj;
+            if (list == null)
+                return null;
+
+            var type = variable.type;
             var elementType = type.GetGenericArguments()[0];
 
             var countMethod = type.GetProperty("Count", BindingFlags.Public | BindingFlags.Instance);
