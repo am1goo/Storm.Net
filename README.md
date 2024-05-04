@@ -105,7 +105,7 @@ dotnet add package am1goo.Storm.Net
 3. After the command completes, open the *.csproj* file in Visual Studio to see the added NuGet package reference:
 ```xml
 <ItemGroup>
-  <PackageReference Include="am1goo.Storm.Net" Version="1.0.2" />
+  <PackageReference Include="am1goo.Storm.Net" Version="1.0.3" />
 </ItemGroup>
 ```
 
@@ -114,8 +114,8 @@ dotnet add package am1goo.Storm.Net
 - [X] Serialization to text or file
 - [ ] Simplified serialization/deserialization of built-in C# collection types:
   - [X] `List<T>`
-  - [ ] `Queue<T>`
-  - [ ] `HashSet<T>`
+  - [X] `Queue<T>`
+  - [X] `HashSet<T>`
   - [ ] `Dictionary<KEY,VALUE>`
     
 ## Example
