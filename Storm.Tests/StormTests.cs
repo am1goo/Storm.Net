@@ -3,6 +3,8 @@ using Storm.Attributes;
 using Storm.Converters;
 using Storm.Serializers;
 using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -32,13 +34,21 @@ namespace Storm.Tests
                 {
                     1234, 3210, 2134, 21341, 34123, 8943891268932
                 },
+                int32_linked_list = new LinkedList<int>(new int[]
+                {
+                    10, 20, 30, 40, 50, 60, 70, 80, 90 
+                }),
                 byte_hashSet = new HashSet<byte>()
                 {
-                    1, 2, 3, 4, 5, 6, 7, 128,255
+                    1, 2, 3, 4, 5, 6, 7, 128, 255
                 },
                 ushort_queue = new Queue<ushort>(new ushort[]
                 {
                     123, 2351, 43, 23412, 424, 6543, 23451
+                }),
+                decimal_concurrent_queue = new ConcurrentQueue<decimal>(new decimal[]
+                {
+                    9, 8, 7, 6, 5, 4, 3, 2, 1, 0
                 }),
                 null_string_value = null,
                 single_string_value = "sadassjghadsfklahgjklahsd",
@@ -225,13 +235,17 @@ namespace Storm.Tests
 
             public int[] int32_array;
             public List<ulong> uint64_list;
+            public LinkedList<int> int32_linked_list;
             public HashSet<byte> byte_hashSet;
             public Queue<ushort> ushort_queue;
+            public ConcurrentQueue<decimal> decimal_concurrent_queue;
 
             public uint[] null_array;
             public List<long> null_list;
+            public LinkedList<uint> null_linked_list;
             public HashSet<sbyte> null_hashSet;
             public Queue<short> null_queue;
+            public ConcurrentQueue<double> null_concurrent_queue;
 
             public InnerObject inner_object;
             public ExternalObject external_object;
@@ -264,12 +278,16 @@ namespace Storm.Tests
                        multi_string_value == other.multi_string_value &&
                        (int32_array == other.int32_array || Enumerable.SequenceEqual(int32_array, other.int32_array)) &&
                        (uint64_list == other.uint64_list || Enumerable.SequenceEqual(uint64_list, other.uint64_list)) &&
+                       (int32_linked_list == other.int32_linked_list || Enumerable.SequenceEqual(int32_linked_list, other.int32_linked_list)) &&
                        (byte_hashSet == other.byte_hashSet || Enumerable.SequenceEqual(byte_hashSet, other.byte_hashSet)) &&
                        (ushort_queue == other.ushort_queue || Enumerable.SequenceEqual(ushort_queue, other.ushort_queue)) &&
+                       (decimal_concurrent_queue == other.decimal_concurrent_queue || Enumerable.SequenceEqual(decimal_concurrent_queue, other.decimal_concurrent_queue)) &&
                        (null_array == other.null_array || Enumerable.SequenceEqual(null_array, other.null_array)) &&
                        (null_list == other.null_list || Enumerable.SequenceEqual(null_list, other.null_list)) &&
+                       (null_linked_list == other.null_linked_list || Enumerable.SequenceEqual(null_linked_list, other.null_linked_list)) &&
                        (null_hashSet == other.null_hashSet || Enumerable.SequenceEqual(null_hashSet, other.null_hashSet)) &&
                        (null_queue == other.null_queue || Enumerable.SequenceEqual(null_queue, other.null_queue)) &&
+                       (null_concurrent_queue == other.null_concurrent_queue || Enumerable.SequenceEqual(null_concurrent_queue, other.null_concurrent_queue)) &&
                        EqualityComparer<InnerObject>.Default.Equals(inner_object, other.inner_object) &&
                        EqualityComparer<ExternalObject>.Default.Equals(external_object, other.external_object) &&
                        magic_enum_as_str == other.magic_enum_as_str &&
@@ -297,12 +315,16 @@ namespace Storm.Tests
                 hash.Add(multi_string_value);
                 hash.Add(int32_array);
                 hash.Add(uint64_list);
+                hash.Add(int32_linked_list);
                 hash.Add(byte_hashSet);
                 hash.Add(ushort_queue);
+                hash.Add(decimal_concurrent_queue);
                 hash.Add(null_array);
                 hash.Add(null_list);
+                hash.Add(null_linked_list);
                 hash.Add(null_hashSet);
                 hash.Add(null_queue);
+                hash.Add(null_concurrent_queue);
                 hash.Add(inner_object);
                 hash.Add(external_object);
                 hash.Add(magic_enum_as_str);
