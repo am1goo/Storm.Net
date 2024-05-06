@@ -12,9 +12,9 @@ namespace Storm
 {
     public class StormSerializer
     {
-        private const char Separator    = ':';
-        private const char Equal        = '=';
-        private const char Quote        = '"';
+        private const char Separator = StormConstants.Separator;
+        private const char Equal = StormConstants.Equal;
+        private const char Quote = StormConstants.Quote;
 
         private List<IStormSerializer> _serializers = new List<IStormSerializer>
         {
@@ -262,7 +262,7 @@ namespace Storm
                 if (firstIndex < 0)
                     continue;
 
-                if (line[firstIndex] == '#')
+                if (line[firstIndex] == StormConstants.Hashtag)
                     continue;
 
                 var separatorIndex = line.IndexOf(Separator);
@@ -352,7 +352,7 @@ namespace Storm
                     var c = line[n];
                     if (c == charOne)
                     {
-                        if (n > 0 && line[n - 1] == '\\')
+                        if (n > 0 && line[n - 1] == StormConstants.ReverseSlash)
                         {
                             sb.Append(c);
                             unescape |= true;
@@ -422,7 +422,7 @@ namespace Storm
                 var append = line;
                 for (int n = 0; n < line.Length; ++n)
                 {
-                    if (n > 0 && line[n - 1] == '\\')
+                    if (n > 0 && line[n - 1] == StormConstants.ReverseSlash)
                     {
                         unescape |= true;
                         continue;

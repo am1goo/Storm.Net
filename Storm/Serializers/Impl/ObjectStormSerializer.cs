@@ -8,10 +8,10 @@ namespace Storm.Serializers
 {
     internal class ObjectStormSerializer : IStormSerializer
     {
-        public static readonly ObjectStormSerializer instance = new ObjectStormSerializer();
+        private const char CharStart = StormConstants.BraceStart;
+        private const char CharEnd = StormConstants.BraceEnd;
 
-        private const char BraceStart   = '{';
-        private const char BraceEnd     = '}';
+        public static readonly ObjectStormSerializer instance = new ObjectStormSerializer();
 
         public bool CanConvert(Type type)
         {
@@ -24,7 +24,7 @@ namespace Storm.Serializers
 
         public bool TryParse(ref int index, string[] lines, out string key, out string text)
         {
-            return StormSerializer.TryParseText(ref index, lines, BraceStart, BraceEnd, out key, out text);
+            return StormSerializer.TryParseText(ref index, lines, CharStart, CharEnd, out key, out text);
         }
 
         public void Populate(IStormVariable variable, IStormValue value, StormContext ctx)
@@ -91,9 +91,9 @@ namespace Storm.Serializers
             ctx.intent++;
             StormCache<StringBuilder>.Pop(out var sb);
             sb.Append(intent).AppendKey(variable.name);
-            sb.Append(BraceStart).Append(Environment.NewLine);
+            sb.Append(CharStart).Append(Environment.NewLine);
             sb.Append(storm);
-            sb.Append(intent).Append(BraceEnd);
+            sb.Append(intent).Append(CharEnd);
             var str = sb.ToString();
             sb.Clear();
             StormCache<StringBuilder>.Push(sb);

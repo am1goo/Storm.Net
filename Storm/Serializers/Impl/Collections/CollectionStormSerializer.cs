@@ -9,8 +9,8 @@ namespace Storm.Serializers
 {
     internal abstract class CollectionStormSerializer : IStormSerializer
     {
-        private const char BracketStart = '[';
-        private const char BracketEnd   = ']';
+        private const char CharStart = StormConstants.BracketStart;
+        private const char CharEnd = StormConstants.BracketEnd;
 
         protected abstract Type collectionType { get; }
 
@@ -30,7 +30,7 @@ namespace Storm.Serializers
 
         public bool TryParse(ref int index, string[] lines, out string key, out string text)
         {
-            return StormSerializer.TryParseText(ref index, lines, BracketStart, BracketEnd, out key, out text);
+            return StormSerializer.TryParseText(ref index, lines, CharStart, CharEnd, out key, out text);
         }
 
         public void Populate(IStormVariable variable, IStormValue value, StormContext ctx)
@@ -76,7 +76,7 @@ namespace Storm.Serializers
             StormCache<StringBuilder>.Pop(out var sb);
             var intent = ctx.settings.GetIntent(ctx.intent);
             sb.Append(intent).AppendKey(variable.name);
-            sb.Append(BracketStart).Append(Environment.NewLine);
+            sb.Append(CharStart).Append(Environment.NewLine);
             ctx.intent++;
 
             foreach (var elementValue in collection)
@@ -86,7 +86,7 @@ namespace Storm.Serializers
                 sb.Append(elementStr).Append(Environment.NewLine);
             }
             ctx.intent--;
-            sb.Append(intent).Append(BracketEnd);
+            sb.Append(intent).Append(CharEnd);
             var str = sb.ToString();
             sb.Clear();
             StormCache<StringBuilder>.Push(sb);
