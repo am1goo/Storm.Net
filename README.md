@@ -105,7 +105,7 @@ dotnet add package am1goo.Storm.Net
 3. After the command completes, open the *.csproj* file in Visual Studio to see the added NuGet package reference:
 ```xml
 <ItemGroup>
-  <PackageReference Include="am1goo.Storm.Net" Version="1.0.3" />
+  <PackageReference Include="am1goo.Storm.Net" Version="1.0.4" />
 </ItemGroup>
 ```
 
