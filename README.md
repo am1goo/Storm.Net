@@ -129,10 +129,14 @@ using Storm.Serializers;
 
 public class Example
 {
-  var settings = new StormSettings(StormSettings.Options.IgnoreCase, new List<IStormConverter>
+  var settings = new StormSettings
   {
-    new UrlStormConverter(), //added ability to load parts of data from other files
-  });
+    options     = StormSettings.Options.IgnoreCase,
+    converters  = new List<IStormConverter>
+    {
+      new UrlStormConverter(), //added ability to load parts of data from other files
+    },
+  };
 
   var serializer = new StormSerializer();
   var obj = await serializer.DeserializeFileAsync("Examples/test-file.storm", settings);
