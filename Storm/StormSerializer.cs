@@ -22,6 +22,7 @@ namespace Storm
             ListStormSerializer.instance,
             LinkedListStormSerializer.instance,
             HashSetStormSerializer.instance,
+            SortedSetStormSerializer.instance,
             QueueStormSerializer.instance,
             ConcurrentQueueStormSerializer.instance,
             ObjectStormSerializer.instance,
