@@ -6,6 +6,6 @@ namespace Storm
     {
         bool TryGetEntry(string name, out IStormValue entry, bool ignoreCase);
         void GetEntries(List<IStormValue> entries);
-        void Populate(IStormVariable variable, StormContext ctx);
+        void Populate(IStormVariableW variable, StormContext ctx);
     }
 }

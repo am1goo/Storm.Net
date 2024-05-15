@@ -183,7 +183,7 @@ namespace Storm
             return null;
         }
 
-        public void Populate(IStormVariable variable, StormContext ctx)
+        public void Populate(IStormVariableW variable, StormContext ctx)
         {
             var value = GetValue();
             variable.SetValue(value);

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Storm
 {
-    public class StormTransient : IStormVariable
+    public class StormTransient : IStormVariableRW
     {
         public string name => "";
 
@@ -11,9 +11,12 @@ namespace Storm
         public Type type => _type;
 
         private object _value;
-        public object value => _value;
 
-        public StormTransient(Type type)
+        public StormTransient(Type type) : this(type, null)
+        {
+        }
+
+        public StormTransient(Type type, object value)
         {
             _type = type;
             _value = value;
@@ -27,6 +30,11 @@ namespace Storm
         public void SetValue(object value)
         {
             _value = value;
+        }
+
+        public object GetValue()
+        {
+            return _value;
         }
     }
 }

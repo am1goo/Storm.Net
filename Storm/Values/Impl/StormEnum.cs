@@ -23,7 +23,7 @@ namespace Storm
             //do nothing
         }
 
-        public void Populate(IStormVariable variable, StormContext ctx)
+        public void Populate(IStormVariableW variable, StormContext ctx)
         {
             var type = variable.type;
             if (!type.IsEnum)

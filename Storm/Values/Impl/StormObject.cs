@@ -84,10 +84,10 @@ namespace Storm
         {
             var variable = new StormTransient(type);
             Populate(variable, ctx);
-            return variable.value;
+            return variable.GetValue();
         }
 
-        public void Populate(IStormVariable variable, StormContext ctx)
+        public void Populate(IStormVariableW variable, StormContext ctx)
         {
             var type = variable.type;
 

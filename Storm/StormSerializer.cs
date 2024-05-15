@@ -82,7 +82,7 @@ namespace Storm
             var fis = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField | BindingFlags.SetField);
 
             StormCache<StringBuilder>.Pop(out var sb);
-            StormCache<List<StormFieldOrProperty>>.Pop(out var cache);
+            StormCache<List<IStormVariableRW>>.Pop(out var cache);
             foreach (var pi in pis)
             {
                 if (pi.ShouldBeIgnored())
@@ -91,8 +91,8 @@ namespace Storm
                 if (pi.IsPrivate() && !pi.ShouldBeIncluded())
                     continue;
 
-                var variable = new StormFieldOrProperty(obj, pi);
-                cache.Add(variable);
+                var fieldInfo = new StormPropertyInfo(obj, pi);
+                cache.Add(fieldInfo);
             }
             foreach (var fi in fis)
             {
@@ -102,8 +102,8 @@ namespace Storm
                 if (fi.IsPrivate && !fi.ShouldBeIncluded())
                     continue;
 
-                var variable = new StormFieldOrProperty(obj, fi);
-                cache.Add(variable);
+                var fieldInfo = new StormFieldInfo(obj, fi);
+                cache.Add(fieldInfo);
             }
             foreach (var variable in cache)
             {
@@ -114,7 +114,7 @@ namespace Storm
 
                 sb.AppendLine(str);
             }
-            StormCache<List<StormFieldOrProperty>>.Push(cache);
+            StormCache<List<IStormVariableRW>>.Push(cache);
 
             var storm = sb.ToString();
             sb.Clear();

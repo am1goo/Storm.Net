@@ -29,7 +29,7 @@ namespace Storm
             _entries.Add(value);
         }
 
-        public void Populate(IStormVariable variable, StormContext ctx)
+        public void Populate(IStormVariableW variable, StormContext ctx)
         {
             var type = variable.type;
 

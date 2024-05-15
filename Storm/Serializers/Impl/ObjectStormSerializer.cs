@@ -27,7 +27,7 @@ namespace Storm.Serializers
             return StormSerializer.TryParseText(ref index, lines, CharStart, CharEnd, out key, out text);
         }
 
-        public void Populate(IStormVariable variable, IStormValue value, StormContext ctx)
+        public void Populate(IStormVariableW variable, IStormValue value, StormContext ctx)
         {
             var type = variable.type;
 
@@ -37,7 +37,7 @@ namespace Storm.Serializers
             var pis = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty);
             var fis = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField | BindingFlags.SetField);
 
-            StormCache<List<StormFieldOrProperty>>.Pop(out var cache);
+            StormCache<List<IStormVariableRW>>.Pop(out var cache);
             foreach (var pi in pis)
             {
                 if (pi.ShouldBeIgnored())
@@ -46,8 +46,8 @@ namespace Storm.Serializers
                 if (pi.IsPrivate() && !pi.ShouldBeIncluded())
                     continue;
 
-                var fieldOrProperty = new StormFieldOrProperty(obj, pi);
-                cache.Add(fieldOrProperty);
+                var propertyInfo = new StormPropertyInfo(obj, pi);
+                cache.Add(propertyInfo);
             }
             foreach (var fi in fis)
             {
@@ -57,8 +57,8 @@ namespace Storm.Serializers
                 if (fi.IsPrivate && !fi.ShouldBeIncluded())
                     continue;
 
-                var fieldOrProperty = new StormFieldOrProperty(obj, fi);
-                cache.Add(fieldOrProperty);
+                var fieldInfo = new StormFieldInfo(obj, fi);
+                cache.Add(fieldInfo);
             }
             foreach (var var in cache)
             {
@@ -67,7 +67,7 @@ namespace Storm.Serializers
                     varValue.Populate(var, ctx);
                 }
             }
-            StormCache<List<StormFieldOrProperty>>.Push(cache);
+            StormCache<List<IStormVariableRW>>.Push(cache);
 
             variable.SetValue(obj);
         }

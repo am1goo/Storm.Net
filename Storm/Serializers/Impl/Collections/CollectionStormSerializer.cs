@@ -33,7 +33,7 @@ namespace Storm.Serializers
             return StormSerializer.TryParseText(ref index, lines, CharStart, CharEnd, out key, out text);
         }
 
-        public void Populate(IStormVariable variable, IStormValue value, StormContext ctx)
+        public void Populate(IStormVariableW variable, IStormValue value, StormContext ctx)
         {
             var type = variable.type;
 
@@ -94,7 +94,7 @@ namespace Storm.Serializers
             return str;
         }
 
-        private struct ElementVariable : IStormVariable
+        private struct ElementVariable : IStormVariableW
         {
             private string _name;
             public string name => _name;
