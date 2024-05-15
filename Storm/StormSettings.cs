@@ -12,6 +12,7 @@ namespace Storm
         public IEnumerable<IStormSerializer> serializers    = null;
         public IEnumerable<IStormConverter> converters      = null;
         public Encoding encoding                            = Encoding.UTF8;
+        public StormBooleanStyle defaultBooleanStyle        = StormBooleanStyle.Default;
         public StormEnumFormat defaultEnumFormat            = StormEnumFormat.String;
         public string numberDecimalSeparator                = ",";
         public int intentSize                               = 2;

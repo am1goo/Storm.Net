@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Storm.Serializers;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -9,6 +10,12 @@ namespace Storm.Converters
     internal class PrimitiveStormConverter : IStormConverter
     {
         public static readonly PrimitiveStormConverter instance = new PrimitiveStormConverter();
+
+        private const string _valueYes = "yes";
+        private const string _valueNo = "no";
+
+        private const string _valueOne = "1";
+        private const string _valueZero = "0";
 
         private static readonly Dictionary<StormValue.Type, string> _postfixes = new Dictionary<StormValue.Type, string>
         {
@@ -59,6 +66,14 @@ namespace Storm.Converters
             var key = variable.name;
             switch (stormType)
             {
+                case StormValue.Type.Boolean:
+                    {
+                        var value = (bool)obj;
+                        var styledValue = GetBooleanStyle(value, ctx.settings.defaultBooleanStyle);
+                        var str = $"{key}:{type} = {styledValue}";
+                        return Task.FromResult(str);
+                    }
+
                 case StormValue.Type.String:
                     {
                         if (obj == null)
@@ -109,19 +124,19 @@ namespace Storm.Converters
             {
                 case StormValue.Type.Boolean:
                     var boolValue = default(bool);
-                    if (string.Equals(trimmed, "1", StringComparison.InvariantCultureIgnoreCase))
+                    if (string.Equals(trimmed, _valueOne, StringComparison.InvariantCultureIgnoreCase))
                     {
                         boolValue = true;
                     }
-                    else if (string.Equals(trimmed, "yes", StringComparison.InvariantCultureIgnoreCase))
+                    else if (string.Equals(trimmed, _valueYes, StringComparison.InvariantCultureIgnoreCase))
                     {
                         boolValue = true;
                     }
-                    else if (string.Equals(trimmed, "0", StringComparison.InvariantCultureIgnoreCase))
+                    else if (string.Equals(trimmed, _valueZero, StringComparison.InvariantCultureIgnoreCase))
                     {
                         boolValue = false;
                     }
-                    else if (string.Equals(trimmed, "no", StringComparison.InvariantCultureIgnoreCase))
+                    else if (string.Equals(trimmed, _valueNo, StringComparison.InvariantCultureIgnoreCase))
                     {
                         boolValue = false;
                     }
@@ -190,6 +205,24 @@ namespace Storm.Converters
 
                 default:
                     return null;
+            }
+        }
+
+        private static string GetBooleanStyle(bool value, StormBooleanStyle style)
+        {
+            switch (style)
+            {
+                case StormBooleanStyle.Boolean:
+                    return value.ToString();
+
+                case StormBooleanStyle.YesNo:
+                    return value ? _valueYes : _valueNo;
+
+                case StormBooleanStyle.Numbers:
+                    return value ? _valueOne : _valueZero;
+
+                default:
+                    throw new Exception($"unsupported type {style}");
             }
         }
     }
