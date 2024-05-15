@@ -136,8 +136,13 @@ public class Example
 {
   var settings = new StormSettings
   {
-    options     = StormSettings.Options.IgnoreCase,
-    converters  = new List<IStormConverter>
+    options = StormSettings.Options.IgnoreCase,
+    defaultBooleanStyle = StormBooleanStyle.Boolean,
+    defaultEnumFormat = StormEnumFormat.String,
+    encoding = System.Text.Encoding.UTF8,
+    intentSize = 2,
+    numberDecimalSeparator = ".",
+    converters = new List<IStormConverter>
     {
       new UrlStormConverter(), //added ability to load parts of data from other files
     },
