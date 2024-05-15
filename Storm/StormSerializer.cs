@@ -33,7 +33,23 @@ namespace Storm
             EnumStormConverter.instance,
             PrimitiveStormConverter.instance,
         };
-        
+
+        public StormContext CreateContext(StormSettings settings = default)
+        {
+            return CreateContext(settings, null);
+        }
+
+        public StormContext CreateContext(StormSettings settings = default, string cwd = default)
+        {
+            if (settings == null)
+                settings = StormSettings.Default();
+
+            if (cwd == null)
+                cwd = settings.cwd;
+
+            return new StormContext(this, settings, cwd);
+        }
+
         public Task SerializeFileAsync(string filePath, object obj, StormSettings settings = default)
         {
             var fileInfo = new FileInfo(filePath);
@@ -42,16 +58,14 @@ namespace Storm
 
         public async Task SerializeFileAsync(FileInfo fileInfo, object obj, StormSettings settings = default)
         {
-            if (settings == null)
-                settings = StormSettings.Default();
-
-            var storm = await SerializeAsync(obj, settings);
+            var ctx = CreateContext(settings);
+            var storm = await SerializeAsync(obj, ctx);
 
             var exists = fileInfo.Exists;
             using (var fs = exists ? fileInfo.OpenWrite() : fileInfo.Create())
             {
                 fs.Seek(0, SeekOrigin.Begin);
-                using (var sw = new StreamWriter(fs, settings.encoding))
+                using (var sw = new StreamWriter(fs, ctx.settings.encoding))
                 {
                     await sw.WriteAsync(storm);
                 }
@@ -60,10 +74,7 @@ namespace Storm
 
         public Task<string> SerializeAsync(object obj, StormSettings settings = default)
         {
-            if (settings == null)
-                settings = StormSettings.Default();
-
-            var ctx = new StormContext(this, settings, settings.cwd);
+            var ctx = CreateContext(settings);
             return SerializeAsync(obj, ctx);
         }
 
@@ -151,10 +162,8 @@ namespace Storm
         {
             var obj = await DeserializeFileAsync(filePath, settings);
 
-            if (settings == null)
-                settings = StormSettings.Default();
             var cwd = new FileInfo(filePath).Directory.FullName;
-            var ctx = new StormContext(this, settings, cwd);
+            var ctx = CreateContext(settings, cwd);
             return obj.Populate<T>(ctx);
         }
 
@@ -162,10 +171,8 @@ namespace Storm
         {
             var obj = await DeserializeFileAsync(filePath, settings);
 
-            if (settings == null)
-                settings = StormSettings.Default();
             var cwd = new FileInfo(filePath).Directory.FullName;
-            var ctx = new StormContext(this, settings, cwd);
+            var ctx = CreateContext(settings, cwd);
             return obj.Populate(type, ctx);
         }
 
@@ -179,10 +186,8 @@ namespace Storm
         {
             var obj = await DeserializeFileAsync(fileInfo, settings);
 
-            if (settings == null)
-                settings = StormSettings.Default();
             var cwd = fileInfo.Directory.FullName;
-            var ctx = new StormContext(this, settings, cwd);
+            var ctx = CreateContext(settings, cwd);
             return obj.Populate<T>(ctx);
         }
 
@@ -190,10 +195,8 @@ namespace Storm
         {
             var obj = await DeserializeFileAsync(fileInfo, settings);
 
-            if (settings == null)
-                settings = StormSettings.Default();
             var cwd = fileInfo.Directory.FullName;
-            var ctx = new StormContext(this, settings, cwd);
+            var ctx = CreateContext(settings, cwd);
             return obj.Populate(type, ctx);
         }
 
@@ -202,46 +205,36 @@ namespace Storm
             if (!fileInfo.Exists)
                 return null;
 
-            if (settings == null)
-                settings = StormSettings.Default();
+            var cwd = fileInfo.Directory.FullName;
+            var ctx = CreateContext(settings, cwd);
 
-            settings.cwd = fileInfo.Directory.FullName;
             using (var fs = fileInfo.OpenRead())
             {
-                using (var sr = new StreamReader(fs, settings.encoding))
+                using (var sr = new StreamReader(fs, ctx.settings.encoding))
                 {
                     var storm = await sr.ReadToEndAsync();
-                    return await DeserializeAsync(storm, settings);
+                    return await DeserializeAsync(storm, ctx);
                 }
             }
         }
 
         public async Task<T> DeserializeAsync<T>(string storm, StormSettings settings = default)
         {
-            var obj = await DeserializeAsync(storm, settings);
-
-            if (settings == null)
-                settings = StormSettings.Default();
-            var ctx = new StormContext(this, settings, cwd: null);
+            var ctx = CreateContext(settings);
+            var obj = await DeserializeAsync(storm, ctx);
             return obj.Populate<T>(ctx);
         }
 
         public async Task<object> DeserializeAsync(Type type, string storm, StormSettings settings = default)
         {
-            var obj = await DeserializeAsync(storm, settings);
-
-            if (settings == null)
-                settings = StormSettings.Default();
-            var ctx = new StormContext(this, settings, cwd: null);
+            var ctx = CreateContext(settings);
+            var obj = await DeserializeAsync(storm, ctx);
             return obj.Populate(type, ctx);
         }
 
         public Task<StormObject> DeserializeAsync(string storm, StormSettings settings)
         {
-            if (settings == null)
-                settings = StormSettings.Default();
-
-            var ctx = new StormContext(this, settings, settings.cwd);
+            var ctx = CreateContext(settings);
             return DeserializeAsync(storm, ctx);
         }
 

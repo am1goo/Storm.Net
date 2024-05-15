@@ -26,7 +26,7 @@ namespace Storm
             }
         }
 
-        public StormContext(StormSerializer serializer, StormSettings settings, string cwd)
+        internal StormContext(StormSerializer serializer, StormSettings settings, string cwd)
         {
             _serializer = serializer;
             _settings = settings;

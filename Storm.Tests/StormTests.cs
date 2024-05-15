@@ -146,7 +146,7 @@ namespace Storm.Tests
 
             var testStorm = task.Result;
 
-            var ctx = new StormContext(serializer, settings, null);
+            var ctx = serializer.CreateContext(settings);
             var testObj = testStorm.Populate<TestObject>(ctx);
             AreEqual(testObj.bool_value, testStorm[nameof(testObj.bool_value)]);
             AreEqual(testObj.sbyte_value_get(), testStorm["sbyte_value"]);
