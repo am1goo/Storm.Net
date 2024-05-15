@@ -121,6 +121,11 @@ dotnet add package am1goo.Storm.Net
 - [ ] Simplified serialization/deserialization of built-in C# dictionary types:
   - [ ] `Dictionary<KEY,VALUE>`
   - [ ] `Hashtable`
+     
+## Attributes
+- `StormIgnoreAttribute` - use to ignore property or field from serialization/deserialization process (along side with `DataMemberIgnoreAttribute`)
+- `StormIncludeAttribute` - use to add property or field into serialization/deserialization process
+- `StormEnumAttribute` - use to set specific type of Enum serialization
     
 ## Example
 ```csharp
