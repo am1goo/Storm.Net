@@ -92,7 +92,6 @@ namespace Storm
             var pis = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetProperty | BindingFlags.SetProperty);
             var fis = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.GetField | BindingFlags.SetField);
 
-            StormCache<StringBuilder>.Pop(out var sb);
             StormCache<List<IStormVariableRW>>.Pop(out var cache);
             foreach (var pi in pis)
             {
@@ -116,7 +115,16 @@ namespace Storm
                 var fieldInfo = new StormFieldInfo(obj, fi);
                 cache.Add(fieldInfo);
             }
-            foreach (var variable in cache)
+
+            var str = await SerializeAsync(cache, ctx);
+            StormCache<List<IStormVariableRW>>.Push(cache);
+            return str;
+        }
+
+        private async Task<string> SerializeAsync(List<IStormVariableRW> variables, StormContext ctx)
+        {
+            StormCache<StringBuilder>.Pop(out var sb);
+            foreach (var variable in variables)
             {
                 var var = variable.GetValue();
                 var str = await SerializeAsync(variable, var, ctx);
@@ -125,7 +133,6 @@ namespace Storm
 
                 sb.AppendLine(str);
             }
-            StormCache<List<IStormVariableRW>>.Push(cache);
 
             var storm = sb.ToString();
             sb.Clear();

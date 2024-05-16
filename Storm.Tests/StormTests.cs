@@ -14,7 +14,19 @@ namespace Storm.Tests
         [Test]
         public void SerializationTest()
         {
-            var settings = StormSettings.Default();
+            var settings = new StormSettings
+            {
+                options = StormSettings.Options.IgnoreCase,
+                defaultBooleanStyle = StormBooleanStyle.Boolean,
+                defaultEnumFormat = StormEnumFormat.String,
+                encoding = System.Text.Encoding.UTF8,
+                intentSize = 2,
+                numberDecimalSeparator = ".",
+                converters = new List<IStormConverter>
+                {
+                    new UrlStormConverter(),
+                },
+            };
 
             var random = new Random();
             var original = new TestObject
