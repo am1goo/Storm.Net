@@ -16,7 +16,7 @@ namespace Storm
         private const char Equal = StormConstants.Equal;
         private const char Quote = StormConstants.Quote;
 
-        private List<IStormSerializer> _serializers = new List<IStormSerializer>
+        private readonly List<IStormSerializer> _serializers = new List<IStormSerializer>
         {
             ArrayStormSerializer.instance,
             ListStormSerializer.instance,
@@ -28,7 +28,7 @@ namespace Storm
             ObjectStormSerializer.instance,
         };
 
-        private List<IStormConverter> _converters = new List<IStormConverter>
+        private readonly List<IStormConverter> _converters = new List<IStormConverter>
         {
             EnumStormConverter.instance,
             PrimitiveStormConverter.instance,

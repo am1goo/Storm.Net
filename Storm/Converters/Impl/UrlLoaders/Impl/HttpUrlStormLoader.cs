@@ -8,7 +8,7 @@ namespace Storm.Converters.Loaders
 {
     public class HttpUrlStormLoader : IUrlStormLoader
     {
-        public static HttpUrlStormLoader instance = new HttpUrlStormLoader();
+        public static readonly HttpUrlStormLoader instance = new HttpUrlStormLoader();
 
         private static readonly AssemblyName _assemblyName = typeof(StormSerializer).Assembly.GetName();
 

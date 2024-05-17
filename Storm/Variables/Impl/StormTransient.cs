@@ -3,9 +3,13 @@ using System.Collections.Generic;
 
 namespace Storm
 {
-    public class StormTransient : IStormVariableRW
+    public class StormTransient : IStormVariableRW, IDisposable
     {
-        public string name => "";
+        private bool _isDisposed;
+        public bool isDisposed => _isDisposed;
+
+        private string _name;
+        public string name => _name;
 
         private Type _type;
         public Type type => _type;
@@ -18,8 +22,20 @@ namespace Storm
 
         public StormTransient(Type type, object value)
         {
+            _name = string.Empty;
             _type = type;
             _value = value;
+        }
+
+        public void Dispose()
+        {
+            if (_isDisposed)
+                return;
+
+            _isDisposed = true;
+            _name = null;
+            _type = null;
+            _value = null;
         }
 
         public void GetAttributes(List<Attribute> result)

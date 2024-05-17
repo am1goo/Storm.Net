@@ -6,7 +6,7 @@ namespace Storm
 {
     public class StormObject : IStormValue, IStormContainer
     {
-        private Dictionary<string, IStormValue> _entries;
+        private readonly Dictionary<string, IStormValue> _entries;
 
         public StormObject()
         {
@@ -82,9 +82,11 @@ namespace Storm
 
         public object Populate(Type type, StormContext ctx)
         {
-            var variable = new StormTransient(type);
-            Populate(variable, ctx);
-            return variable.GetValue();
+            using (var variable = new StormTransient(type))
+            {
+                Populate(variable, ctx);
+                return variable.GetValue();
+            }
         }
 
         public void Populate(IStormVariableW variable, StormContext ctx)

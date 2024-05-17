@@ -6,7 +6,7 @@ namespace Storm
 {
     public class StormArray : IStormValue, IStormContainer
     {
-        private List<IStormValue> _entries;
+        private readonly List<IStormValue> _entries;
 
         public StormArray()
         {
